@@ -12,14 +12,15 @@ Pod::Spec.new do |s|
   s.summary          = 'A router for iOS app.'
 
   s.description      = <<-DESC
-  A router for iOS app.
+  App URL router for iOS (Swift only).
                        DESC
 
   s.homepage         = 'https://github.com/reers/ReerRouter'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'phoenix' => 'x.rhythm@qq.com' }
   s.source           = { :git => 'https://github.com/reers/ReerRouter.git', :tag => s.version.to_s }
-
+  
+  s.swift_versions = '5.5'
   s.ios.deployment_target = '10.0'
 
   s.source_files = 'Sources/**/*'
