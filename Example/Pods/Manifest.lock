@@ -1,0 +1,16 @@
+PODS:
+  - ReerRouter (0.1.0)
+
+DEPENDENCIES:
+  - ReerRouter (from `../`)
+
+EXTERNAL SOURCES:
+  ReerRouter:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  ReerRouter: ab5f13979eed65d165920fbae943b9dba550b38b
+
+PODFILE CHECKSUM: 4ada4ea3cf3c788096812854f3d57483acf8ce3d
+
+COCOAPODS: 1.11.3
