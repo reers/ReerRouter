@@ -22,13 +22,13 @@ extension Optional {
     var string: String? {
         if let string = self as? String {
             return string
-        } else if let bool = self as? Bool {
-            return bool ? "true" : "false"
         } else if let stringConvertible = self as? CustomStringConvertible {
             if let int = Int(stringConvertible.description) {
                 return int.description
             } else if let double = Double(stringConvertible.description) {
                 return double.description
+            } else if let bool = self as? Bool {
+                return bool ? "true" : "false"
             } else {
                 return nil
             }
@@ -36,6 +36,7 @@ extension Optional {
             return nil
         }
     }
+
 }
 
 extension URL {
@@ -63,44 +64,36 @@ extension URL {
         } else {
             result = URL(string: string)
         }
+        if result != nil { return result }
 
-        if result == nil {
-            var sourceString = string
-            var fragment = ""
-            if let fragmentRange = string.range(of: "#") {
-                sourceString = String(string[..<fragmentRange.lowerBound])
-                fragment = String(string[fragmentRange.lowerBound...])
-            }
-            let substrings = sourceString.components(separatedBy: "?")
-            if substrings.count > 1 {
-                let beforeQuery = substrings[0]
-                let queryString = substrings[1]
-                let params = queryString.components(separatedBy: "&")
-                var encodedParams: [String: String] = [:]
-                for param in params {
-                    let keyValue = param.components(separatedBy: "=")
-                    if keyValue.count > 1 {
-                        let key = keyValue[0]
-                        var value = keyValue[1]
-                        value = decode(with: value)
-                        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .reerRouterAllowed)
-                        encodedParams[key] = encodedValue
-                    }
-                }
-                let encodedURLString = "\(beforeQuery)?\(encodedParams.queryString)\(fragment))"
-                if let url = url {
-                    result = URL(string: encodedURLString, relativeTo: url)
-                } else {
-                    result = URL(string: encodedURLString)
+        var sourceString = string
+        var fragment = ""
+        if let fragmentRange = string.range(of: "#") {
+            sourceString = String(string[..<fragmentRange.lowerBound])
+            fragment = String(string[fragmentRange.lowerBound...])
+        }
+        let substrings = sourceString.components(separatedBy: "?")
+        if substrings.count > 1 {
+            let beforeQuery = substrings[0]
+            let queryString = substrings[1]
+            let params = queryString.components(separatedBy: "&")
+            var encodedParams: [String: String] = [:]
+            for param in params {
+                let keyValue = param.components(separatedBy: "=")
+                if keyValue.count > 1 {
+                    let key = keyValue[0]
+                    var value = keyValue[1]
+                    value = decode(with: value)
+                    let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .reerRouterAllowed)
+                    encodedParams[key] = encodedValue
                 }
             }
-
-            if result == nil {
-                if let encodedString = string.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
-                    result = URL(string: encodedString)
-                }
+            let encodedURLString = "\(beforeQuery)?\(encodedParams.queryString)\(fragment))"
+            if let url = url {
+                result = URL(string: encodedURLString, relativeTo: url)
+            } else {
+                result = URL(string: encodedURLString)
             }
-            assert(result != nil, "Fail to create a URL.")
         }
         return result
     }
