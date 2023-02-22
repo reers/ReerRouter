@@ -1,3 +1,5 @@
+[中文文档](https://github.com/reers/ReerRouter/wiki/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3)
+
 # ReerRouter
 App URL router for iOS (Swift only). Inspired by [URLNavigator](https://github.com/devxoul/URLNavigator).
 
@@ -30,6 +32,7 @@ let package = Package(
     ]
 )
 ```
+Next, add ReerRouter to your targets dependencies like so:
 ```
 .target(
     name: "YOUR_TARGET_NAME",
