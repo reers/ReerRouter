@@ -40,12 +40,12 @@ open class Router {
 // MARK: - Enable
 
 extension Router {
-    open func canOpenKey(_ key: Route.Key) -> Bool {
+    public func canOpenKey(_ key: Route.Key) -> Bool {
         guard let url = key.toURL() else { return false }
         return canOpenURL(url)
     }
     
-    open func canOpenURL(_ url: URLConvertible) -> Bool {
+    public func canOpenURL(_ url: URLConvertible) -> Bool {
         guard let url = url.urlValue else { return false }
         let param = Route.Param(url: url)
         guard isAllowedForScheme(param.scheme) else { return false }
@@ -71,13 +71,13 @@ extension Router {
     ///     AppRouter.registerAction(with: "some_action") { _ in
     ///         print("action executed.")
     ///     }
-    open func registerAction(with key: Route.Key, _ action: @escaping Route.Action) {
+    public func registerAction(with key: Route.Key, _ action: @escaping Route.Action) {
         assert(actionMap[key] == nil, "\(key) action has been registered.")
         assert(routableMap[key] == nil, "\(key) action conflict with a page.")
         actionMap[key] = action
     }
     
-    open func unregisterAction(with key: Route.Key) {
+    public func unregisterAction(with key: Route.Key) {
         actionMap.removeValue(forKey: key)
     }
     
@@ -87,7 +87,7 @@ extension Router {
     ///     // Also you can execute action by url
     ///     AppRouter.open("myapp://some_action")
     @discardableResult
-    open func executeAction(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
+    public func executeAction(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
         guard let action = actionMap[key] else {
             return false
         }
@@ -107,14 +107,14 @@ extension Router {
 extension Router {
     
     /// Register a view controller by its type and a route key.
-    open func register(_ pageClass: Routable.Type, forKey key: Route.Key) {
+    public func register(_ pageClass: Routable.Type, forKey key: Route.Key) {
         assert(routableMap[key] == nil, "\(key) has been registered.")
         assert(actionMap[key] == nil, "\(key) page conflict with an action.")
         routableMap[key] = pageClass
     }
     
     /// Register view controllers by their types and route keys.
-    open func registerPageClasses(with dict: [Route.Key: Routable.Type]) {
+    public func registerPageClasses(with dict: [Route.Key: Routable.Type]) {
         dict.forEach {
             assert(routableMap[$0] == nil, "\($0) has been registered.")
             assert(actionMap[$0] == nil, "\($0) page conflict with an action.")
@@ -126,7 +126,7 @@ extension Router {
     /// Don't forget to add it's module name.
     ///
     ///     Router.shared.registerPageClasses(with: ["preference": "ReerRouter.PreferenceViewController"])
-    open func registerPageClasses(with dict: [Route.Key: UIViewControllerClassName]) {
+    public func registerPageClasses(with dict: [Route.Key: UIViewControllerClassName]) {
         dict.forEach {
             assert(routableMap[$0] == nil, "\($0) has been registered.")
             assert(actionMap[$0] == nil, "\($0) page conflict with an action.")
@@ -142,7 +142,7 @@ extension Router {
         }
     }
     
-    open func unregister(forKey key: Route.Key) {
+    public func unregister(forKey key: Route.Key) {
         routableMap.removeValue(forKey: key)
     }
 }
@@ -152,7 +152,7 @@ extension Router {
 
 extension Router {
     
-    open func viewController(for url: URLConvertible, userInfo: [String: Any] = [:]) -> UIViewController? {
+    public func viewController(for url: URLConvertible, userInfo: [String: Any] = [:]) -> UIViewController? {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url, userInfo: userInfo)
@@ -162,7 +162,7 @@ extension Router {
         return routableViewController as UIViewController
     }
     
-    open func action(for url: URLConvertible) -> Route.Action? {
+    public func action(for url: URLConvertible) -> Route.Action? {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url)
@@ -188,7 +188,7 @@ extension Router {
     ///     // Route.Key can be expressed by string, so you can use a string as the key.
     ///     Router.shared.open(byKey: "user")
     @discardableResult
-    open func open(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
+    public func open(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
         guard let url = key.toURL() else {
             assert(false, "Generate url failed for \(key)")
             return false
@@ -202,7 +202,7 @@ extension Router {
     ///     Router.shared.open("myapp://user?name=apple")
     ///     Router.shared.open(URL(string: "myapp://user?name=apple")!)
     @discardableResult
-    open func open(_ url: URLConvertible, userInfo: [String: Any] = [:]) -> Bool {
+    public func open(_ url: URLConvertible, userInfo: [String: Any] = [:]) -> Bool {
         guard let url = url.urlValue else { return false }
         if !isAllowedForScheme(url.scheme) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
@@ -252,7 +252,7 @@ extension Router {
     ///
     ///     AppRouter.push(byKey: "user")
     @discardableResult
-    open func push(
+    public func push(
         byKey key: Route.Key,
         userInfo: [String: Any] = [:],
         animated: Bool = true,
@@ -266,7 +266,7 @@ extension Router {
     ///
     ///     AppRouter.push("myapp://user?name=apple")
     @discardableResult
-    open func push(
+    public func push(
         _ url: URLConvertible,
         userInfo: [String: Any] = [:],
         animated: Bool = true,
@@ -318,7 +318,7 @@ extension Router {
     ///
     ///     AppRouter.present(byKey: "user")
     @discardableResult
-    open func present(
+    public func present(
         byKey key: Route.Key,
         embedIn navigationControllerClass: UINavigationController.Type? = nil,
         userInfo: [String: Any] = [:],
@@ -341,7 +341,7 @@ extension Router {
     ///
     ///     AppRouter.present("myapp://user?name=apple")
     @discardableResult
-    open func present(
+    public func present(
         _ url: URLConvertible,
         embedIn navigationControllerClass: UINavigationController.Type? = nil,
         userInfo: [String: Any] = [:],
@@ -410,7 +410,7 @@ extension Router {
     
     /// Open a view controller with the default open style.
     @discardableResult
-    open func open(viewController: UIViewController, animated: Bool = true) -> Bool {
+    public func open(viewController: UIViewController, animated: Bool = true) -> Bool {
         var result = false
         switch preferredOpenStyle {
         case .push:
@@ -429,7 +429,7 @@ extension Router {
     
     /// Push a view controller with the default open style.
     @discardableResult
-    open func push(
+    public func push(
         viewController: UIViewController,
         animated: Bool = true
     ) -> Bool {
@@ -438,7 +438,7 @@ extension Router {
     
     /// Present a view controller with the default open style.
     @discardableResult
-    open func present(
+    public func present(
         viewController: UIViewController,
         animated: Bool = true,
         presentationStyle: UIModalPresentationStyle = .fullScreen
