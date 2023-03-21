@@ -9,9 +9,9 @@ import Foundation
 import UIKit
 
 /// ReerRouter: Provides an elegant way to navigate through view controllers or actions by URLs.
-/// Use the combination of url host and path as the route key.
+/// There are two ways to use the route key:
 ///
-/// Format:
+/// Mode 1. Use the combination of url host and path as the route key.
 ///
 /// myapp://example.com/over/there?name=phoenix#nose
 /// \______/\_________/\_________/ \__________/ \__/
@@ -20,6 +20,18 @@ import UIKit
 ///              \_________/
 ///                   |
 ///               route key
+///
+/// -------------------------------------------------------------
+///
+/// Mode 2. Set `host` for router instance and use path as the route key.
+///
+/// myapp://example.com/over/there?name=phoenix#nose
+/// \______/\_________/\_________/ \__________/ \__/
+///    |         |          |           |        |
+///  scheme     host       path      queries   fragment
+///                        |
+///                        |
+///                    route key
 ///
 open class Router {
     /// Global singleton instance.
@@ -30,10 +42,13 @@ open class Router {
     // User can setup these properties as the default.
     open var preferredOpenStyle: Route.OpenStyle = .push
     open var preferredPresentationStyle: UIModalPresentationStyle = .fullScreen
+    // Empty means any scheme is allowed.
     open var allowedSchemes: [String] = []
     
-    private var actionMap: [Route.Key: Route.Action] = [:]
-    private var routableMap: [Route.Key: Routable.Type] = [:]
+    open var host: String = ""
+    
+    private var actionMap: [Route.ID: Route.Action] = [:]
+    private var routableMap: [Route.ID: Routable.Type] = [:]
 }
 
 
@@ -41,7 +56,7 @@ open class Router {
 
 extension Router {
     public func canOpenKey(_ key: Route.Key) -> Bool {
-        guard let url = key.toURL() else { return false }
+        guard let url = key.url(with: host) else { return false }
         return canOpenURL(url)
     }
     
@@ -49,7 +64,7 @@ extension Router {
         guard let url = url.urlValue else { return false }
         let param = Route.Param(url: url)
         guard isAllowedForScheme(param.scheme) else { return false }
-        return actionMap[param.key.routeKey] != nil || routableMap[param.key.routeKey] != nil
+        return actionMap[param.routeID] != nil || routableMap[param.routeID] != nil
     }
     
     private func isAllowedForScheme(_ scheme: String?) -> Bool {
@@ -72,13 +87,14 @@ extension Router {
     ///         print("action executed.")
     ///     }
     public func registerAction(with key: Route.Key, _ action: @escaping Route.Action) {
-        assert(actionMap[key] == nil, "\(key) action has been registered.")
-        assert(routableMap[key] == nil, "\(key) action conflict with a page.")
-        actionMap[key] = action
+        let id = key.id(with: host)
+        assert(actionMap[id] == nil, "\(id) action has been registered.")
+        assert(routableMap[id] == nil, "\(id) action conflict with a page.")
+        actionMap[id] = action
     }
     
     public func unregisterAction(with key: Route.Key) {
-        actionMap.removeValue(forKey: key)
+        actionMap.removeValue(forKey: key.id(with: host))
     }
     
     /// Execute an action by a route key.
@@ -88,11 +104,12 @@ extension Router {
     ///     AppRouter.open("myapp://some_action")
     @discardableResult
     public func executeAction(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
-        guard let action = actionMap[key] else {
+        let id = key.id(with: host)
+        guard let action = actionMap[id] else {
             return false
         }
-        guard let url = key.toURL() else {
-            assert(false, "Generate url failed for \(key)")
+        guard let url = key.url(with: host) else {
+            assert(false, "Generate url failed for \(id)")
             return false
         }
         let param = Route.Param(url: url, userInfo: userInfo)
@@ -108,17 +125,19 @@ extension Router {
     
     /// Register a view controller by its type and a route key.
     public func register(_ pageClass: Routable.Type, forKey key: Route.Key) {
-        assert(routableMap[key] == nil, "\(key) has been registered.")
-        assert(actionMap[key] == nil, "\(key) page conflict with an action.")
-        routableMap[key] = pageClass
+        let id = key.id(with: host)
+        assert(routableMap[id] == nil, "\(id) has been registered.")
+        assert(actionMap[id] == nil, "\(id) page conflict with an action.")
+        routableMap[id] = pageClass
     }
     
     /// Register view controllers by their types and route keys.
     public func registerPageClasses(with dict: [Route.Key: Routable.Type]) {
         dict.forEach {
-            assert(routableMap[$0] == nil, "\($0) has been registered.")
-            assert(actionMap[$0] == nil, "\($0) page conflict with an action.")
-            routableMap[$0] = $1
+            let id = $0.id(with: host)
+            assert(routableMap[id] == nil, "\(id) has been registered.")
+            assert(actionMap[id] == nil, "\(id) page conflict with an action.")
+            routableMap[id] = $1
         }
     }
     
@@ -128,8 +147,9 @@ extension Router {
     ///     Router.shared.registerPageClasses(with: ["preference": "ReerRouter.PreferenceViewController"])
     public func registerPageClasses(with dict: [Route.Key: UIViewControllerClassName]) {
         dict.forEach {
-            assert(routableMap[$0] == nil, "\($0) has been registered.")
-            assert(actionMap[$0] == nil, "\($0) page conflict with an action.")
+            let id = $0.id(with: host)
+            assert(routableMap[id] == nil, "\(id) has been registered.")
+            assert(actionMap[id] == nil, "\(id) page conflict with an action.")
             guard let pageClass = NSClassFromString($1) else {
                 assert(false, "\($1) class not found. Do NOT forget to add module name as a prefix when using Swift, such as `MuduleA.UserViewController")
                 return
@@ -138,12 +158,12 @@ extension Router {
                 assert(false, "\($1) class does not conform to Routable.")
                 return
             }
-            routableMap[$0] = routableClass
+            routableMap[id] = routableClass
         }
     }
     
     public func unregister(forKey key: Route.Key) {
-        routableMap.removeValue(forKey: key)
+        routableMap.removeValue(forKey: key.id(with: host))
     }
 }
 
@@ -156,7 +176,7 @@ extension Router {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url, userInfo: userInfo)
-        guard let routable = routableMap[param.key.routeKey],
+        guard let routable = routableMap[param.routeID],
               let routableViewController = routable.init(param: param)
         else { return nil }
         return routableViewController as UIViewController
@@ -166,7 +186,7 @@ extension Router {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url)
-        return actionMap[param.key.routeKey]
+        return actionMap[param.routeID]
     }
 }
 
@@ -189,7 +209,7 @@ extension Router {
     ///     Router.shared.open(byKey: "user")
     @discardableResult
     public func open(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
-        guard let url = key.toURL() else {
+        guard let url = key.url(with: host) else {
             assert(false, "Generate url failed for \(key)")
             return false
         }
@@ -213,7 +233,7 @@ extension Router {
             return false
         }
         let param = Route.Param(url: url, userInfo: userInfo)
-        if let action = actionMap[param.key.routeKey] {
+        if let action = actionMap[param.routeID] {
             sendWillOpenNotification(with: param)
             action(param)
             defer {
@@ -221,7 +241,7 @@ extension Router {
                 sendDidOpenNotificationIfNeeded(true, with: param)
             }
             return true
-        } else if let routable = routableMap[param.key.routeKey] {
+        } else if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return open(redirectURL, userInfo: userInfo)
             }
@@ -242,7 +262,7 @@ extension Router {
                 if result { delegate?.router(self, didFallbackToURL: fallbackURL, userInfo: userInfo) }
                 return result
             }
-            assert(false, "\(param.key) can NOT be handled.")
+            assert(false, "\(param.routeID) can NOT be handled.")
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             return false
         }
@@ -258,7 +278,7 @@ extension Router {
         animated: Bool = true,
         transitionExecutor: Route.TransitionExecutor = .router
     ) -> Bool {
-        guard let url = key.toURL() else { return false }
+        guard let url = key.url(with: host) else { return false }
         return push(url, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor)
     }
     
@@ -282,7 +302,7 @@ extension Router {
             return false
         }
         let param = Route.Param(url: url, userInfo: userInfo)
-        if let routable = routableMap[param.key.routeKey] {
+        if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return push(redirectURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor)
             }
@@ -308,7 +328,7 @@ extension Router {
                 if result { delegate?.router(self, didFallbackToURL: fallbackURL, userInfo: userInfo) }
                 return result
             }
-            assert(false, "\(param.key) can NOT be handled.")
+            assert(false, "\(param.routeID) can NOT be handled.")
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             return false
         }
@@ -326,7 +346,7 @@ extension Router {
         presentationStyle: UIModalPresentationStyle? = nil,
         transitionExecutor: Route.TransitionExecutor = .router
     ) -> Bool {
-        guard let url = key.toURL() else { return false }
+        guard let url = key.url(with: host) else { return false }
         return present(
             url,
             embedIn: navigationControllerClass,
@@ -359,7 +379,7 @@ extension Router {
             return false
         }
         let param = Route.Param(url: url, userInfo: userInfo)
-        if let routable = routableMap[param.key.routeKey] {
+        if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return present(
                     redirectURL,
@@ -402,7 +422,7 @@ extension Router {
                 if result { delegate?.router(self, didFallbackToURL: fallbackURL, userInfo: userInfo) }
                 return result
             }
-            assert(false, "\(param.key) can NOT be handled.")
+            assert(false, "\(param.routeID) can NOT be handled.")
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             return false
         }

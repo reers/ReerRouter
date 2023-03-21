@@ -1,5 +1,5 @@
 PODS:
-  - ReerRouter (0.1.0)
+  - ReerRouter (0.1.3)
 
 DEPENDENCIES:
   - ReerRouter (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ReerRouter: ab5f13979eed65d165920fbae943b9dba550b38b
+  ReerRouter: 6efa37fa7848a9b2e1d556684676353c6f73f9dd
 
 PODFILE CHECKSUM: 4ada4ea3cf3c788096812854f3d57483acf8ce3d
 
