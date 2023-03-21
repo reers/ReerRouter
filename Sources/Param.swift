@@ -29,6 +29,10 @@ extension Route {
         public var path: String {
             return sourceURL.path
         }
+
+        public var fragment: String {
+            return sourceURL.fragment ?? ""
+        }
         
         public let queryParams: [String: String]
         
