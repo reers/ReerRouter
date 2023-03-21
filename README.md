@@ -42,7 +42,10 @@ Next, add ReerRouter to your targets dependencies like so:
 
 ## Getting Started
 ### 1. Understanding `Route.Key`
-`Route.Key` means URL `host` + `path`
+
+There are two modes of `Route.Key`.
+
+Mode 1: `Route.Key` means URL `host` + `path`
 ```
 /// myapp://example.com/over/there?name=phoenix#nose
 /// \______/\_________/\_________/ \__________/ \__/
@@ -52,7 +55,21 @@ Next, add ReerRouter to your targets dependencies like so:
 ///                   |
 ///               route key
 ```
+
+Mode 1: Set `host` for router instance and use `path` as the `Route.Key`.
+```
+/// myapp://example.com/over/there?name=phoenix#nose
+/// \______/\_________/\_________/ \__________/ \__/
+///    |         |          |           |        |
+///  scheme     host       path      queries   fragment
+///                         |
+///                         |
+///                    route key
+```
+
 ### 2. Register Route
+#### Mode 1
+Now `Route.Key` means the combination of url `host` and `path`.
 
 * Register an action.
 ```
@@ -80,6 +97,14 @@ Router.shared.registerPageClasses(with: ["preference": PreferenceViewController.
 Router.shared.registerPageClasses(with: ["preference": "ReerRouter_Example.PreferenceViewController"])
 ```
 
+#### Mode 2
+Firstly, you should set `host` for router instance.
+```
+Router.shared.host = "phoenix.com"
+```
+And now `Route.Key` means url path, then all the register methods are same as `Mode 1`.
+("path", "/path" both are supported.)
+
 * Implement `Routable` for view controller.
 ```
 class UserViewController: UIViewController, Routable {
@@ -95,14 +120,30 @@ class UserViewController: UIViewController, Routable {
 ### 3. Execute an route action.
 ```
 Router.shared.executeAction(byKey: "abc_action")
+
+// Mode 1.
 Router.shared.open("myapp://abc_action")
+
+// Mode 2.
+Router.shared.open("myapp://phoenix.com/abc_action")
 ```
 
 ### 4. Open a view controller.
 ```
+Router.shared.present(byKey: .userPage, embedIn: UINavigationController.self, userInfo: [
+    "name": "apple",
+    "id": "123123"
+])
+
+// Mode 1.
 Router.shared.open("myapp://user?name=phoenix")
 Router.shared.push("myapp://user?name=phoenix")
 Router.shared.present("myapp://user?name=phoenix")
+
+// Mode 2.
+Router.shared.open("myapp://phoenix.com/user?name=phoenix")
+Router.shared.push("myapp://phoenix.com/user?name=phoenix")
+Router.shared.present("myapp://phoenix.com/user?name=phoenix")
 ```
 
 ### 5. Delegate for for the app about the route.
