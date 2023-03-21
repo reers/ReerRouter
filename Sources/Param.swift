@@ -18,7 +18,7 @@ extension Route {
             return sourceURL.scheme ?? ""
         }
         
-        public var key: String {
+        var routeID: String {
             return (sourceURL.host ?? "") + sourceURL.path
         }
         

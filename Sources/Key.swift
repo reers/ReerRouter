@@ -8,6 +8,9 @@
 import Foundation
 
 extension Route {
+    /// Represent a unique id for `Route.Key`, it is the combination of url host and path.
+    typealias ID = String
+
     /// Route key represent the unique identifier of the route(action or routable UIViewController).
     /// It is actually the combination of url `host` and `path`.
     public struct Key: ExpressibleByStringLiteral, Equatable, Hashable, RawRepresentable {
@@ -34,8 +37,14 @@ extension Route {
 }
 
 extension Route.Key {
+    /// Transform route key to route id.
+    func id(with host: String) -> Route.ID {
+        return rawValue.hasPrefix(host) ? rawValue : "\(host)\(rawValue)"
+    }
+
     /// Use the router default scheme to generate a route url.
-    func toURL() -> URL? {
-        return "\(Route.defaultScheme)://\(self.rawValue)".toURL()
+    func url(with host: String) -> URL? {
+        let id = id(with: host)
+        return "\(Route.defaultScheme)://\(id)".toURL()
     }
 }

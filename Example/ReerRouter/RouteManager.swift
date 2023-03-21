@@ -39,6 +39,8 @@ final class RouteManager {
         Router.shared.preferredOpenStyle = .push
         // `AppRouter` means `Router.shared`
         AppRouter.allowedSchemes = ["myapp"]
+
+//        AppRouter.host = "phoenix.com"
         
         // 注册页面
         
