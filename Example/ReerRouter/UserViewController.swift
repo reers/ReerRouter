@@ -20,7 +20,10 @@ final class UserViewController: UIViewController, Routable {
         self.params = param.allParams
         super.init(nibName: nil, bundle: nil)
     }
-    
+
+    var preferredOpenStyle: Route.OpenStyle? {
+        return .present(.pageSheet)
+    }
     
     // MARK: UI
     
