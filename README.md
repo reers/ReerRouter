@@ -255,6 +255,13 @@ let transition: Route.UserTransition = { fromNavigationController, fromViewContr
 AppRouter.present(user.urlString, transitionExecutor: .user(transition))
 ```
 
+### 11. Open style for UIViewController.
+The priority levels on which the way router opens the controller depend are as follows:
+```
+`Router` instance property `preferredOpenStyle` <
+  `Routable` property `preferredOpenStyle` that UIViewController implemented <
+    The method you called. If you called `Router.push(...)`, the view controller will be pushed.
+```
 ## Author
 
 phoenix, x.rhythm@qq.com

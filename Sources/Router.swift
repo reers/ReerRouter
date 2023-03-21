@@ -250,9 +250,8 @@ extension Router {
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
                 return false
             }
-            let viewController = routableViewController as UIViewController
             sendWillOpenNotification(with: param)
-            let result = open(viewController: viewController)
+            let result = open(routable: routableViewController)
             tellDelegateResult(result, forURL: url, userInfo: userInfo)
             sendDidOpenNotificationIfNeeded(result, with: param)
             return result
@@ -430,9 +429,11 @@ extension Router {
     
     /// Open a view controller with the default open style.
     @discardableResult
-    public func open(viewController: UIViewController, animated: Bool = true) -> Bool {
+    public func open(routable: Routable, animated: Bool = true) -> Bool {
+        let viewController = routable as UIViewController
         var result = false
-        switch preferredOpenStyle {
+        let openStyle = routable.preferredOpenStyle ?? self.preferredOpenStyle
+        switch openStyle {
         case .push:
             result = push(viewController: viewController)
             if !result {

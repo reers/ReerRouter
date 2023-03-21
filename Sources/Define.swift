@@ -58,11 +58,18 @@ public protocol Routable: UIViewController {
     
     /// Implement this method if the view controller needs to redirect to another view controller under some conditions.
     static func redirectURLWithRouteParam(_ param: Route.Param) -> URL?
+
+    /// Implement this property to take a preferred open style for the view controller.
+    var preferredOpenStyle: Route.OpenStyle? { get }
 }
 
 /// Make the protocol optional.
 public extension Routable {
     static func redirectURLWithRouteParam(_ param: Route.Param) -> URL? { return nil }
+
+    var preferredOpenStyle: Route.OpenStyle? {
+        return nil
+    }
 }
 
 
