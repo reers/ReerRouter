@@ -51,6 +51,10 @@ extension Route {
             guard let urlString = allParams[Route.fallbackURLKey].string else { return nil }
             return urlString.toURL()
         }
+
+        public var animated: Bool? {
+            return !allParams[Route.noAnimationKey].bool
+        }
         
         public static var `default` = Param(url: URL(string: "\(Route.defaultScheme)://")!)
     }

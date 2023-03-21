@@ -24,6 +24,11 @@ extension String {
 }
 
 extension Optional {
+
+    var isNil: Bool {
+        return self == nil
+    }
+
     var string: String? {
         if let string = self as? String {
             return string
@@ -42,6 +47,43 @@ extension Optional {
         }
     }
 
+    var bool: Bool? {
+        if let bool = self as? Bool {
+            return bool
+        } else if let stringConvertible = self as? CustomStringConvertible,
+                  let double = Double(stringConvertible.description) {
+            return double != .zero
+        } else if let string = self as? String {
+            let optional: String? = string
+            if let int = optional.int {
+                return int != 0
+            } else if string.count <= 5 {
+                switch string.lowercased() {
+                case "true", "yes":
+                    return true
+                case "false", "no":
+                    return false
+                default:
+                    return nil
+                }
+            } else {
+                return nil
+            }
+        } else {
+            return nil
+        }
+    }
+
+    var int: Int? {
+        if let stringConvertible = self as? CustomStringConvertible,
+           let double = Double(stringConvertible.description) {
+            return Int(double)
+        } else if let bool = self as? Bool {
+            return bool ? 1 : 0
+        } else {
+            return nil
+        }
+    }
 }
 
 extension URL {
@@ -186,5 +228,16 @@ extension UIApplication {
         }
         
         return viewController
+    }
+}
+
+/// Make `Bool?` to a oppsite value if it is not nil.
+prefix operator !
+prefix func ! (value: Bool?) -> Bool? {
+    guard let value = value else { return nil }
+    if value {
+        return false
+    } else {
+        return true
     }
 }

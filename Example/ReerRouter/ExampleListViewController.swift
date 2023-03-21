@@ -16,7 +16,7 @@ class ExampleListViewController: UIViewController {
     let users = [
         Example(name: "phoenix", urlString: "myapp://user?name=phoenix&id=121231&gender=male&age=18"),
         Example(name: "apple", urlString: "present .user"),
-        Example(name: "google", urlString: "myapp://user?name=google"),
+        Example(name: "google", urlString: "myapp://user?name=google&route_no_animation=1"),
         Example(name: "intercept by delegate", urlString: "myapp://user?name=bytedance"),
         Example(name: "facebook", urlString: "myapp://user?name=facebook"),
         Example(name: "alert", urlString: "myapp://alert?title=Hello&message=World"),
