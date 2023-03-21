@@ -39,7 +39,7 @@ extension Route {
 extension Route.Key {
     /// Transform route key to route id.
     func id(with host: String) -> Route.ID {
-        return rawValue.hasPrefix(host) ? rawValue : "\(host)\(rawValue)"
+        return rawValue.hasPrefix(host) ? rawValue : "\(host)/\(rawValue.removingPrefix("/"))"
     }
 
     /// Use the router default scheme to generate a route url.

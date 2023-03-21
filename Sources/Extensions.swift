@@ -16,6 +16,11 @@ extension String {
     func toURL() -> URL? {
         return URL.with(urlString: self)
     }
+
+    func removingPrefix(_ prefix: String) -> String {
+        guard hasPrefix(prefix) else { return self }
+        return String(dropFirst(prefix.count))
+    }
 }
 
 extension Optional {
