@@ -262,6 +262,13 @@ The priority levels on which the way router opens the controller depend are as f
   `Routable` property `preferredOpenStyle` that UIViewController implemented <
     The method you called. If you called `Router.push(...)`, the view controller will be pushed.
 ```
+
+### 12. Forbidden transition animation.
+* Use `route_no_animation` key to forbidden animation.
+```
+Router.shared.open("myapp://user?name=google&route_no_animation=1")
+```
+
 ## Author
 
 phoenix, x.rhythm@qq.com

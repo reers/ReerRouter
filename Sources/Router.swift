@@ -251,7 +251,7 @@ extension Router {
                 return false
             }
             sendWillOpenNotification(with: param)
-            let result = open(routable: routableViewController)
+            let result = open(routable: routableViewController, animated: param.animated ?? true)
             tellDelegateResult(result, forURL: url, userInfo: userInfo)
             sendDidOpenNotificationIfNeeded(result, with: param)
             return result
@@ -314,7 +314,7 @@ extension Router {
             sendWillOpenNotification(with: param)
             let result = _push(
                 viewController: viewController,
-                animated: animated,
+                animated: param.animated ?? animated,
                 param: param,
                 transitionExecutor: transitionExecutor
             )
@@ -401,7 +401,7 @@ extension Router {
             sendWillOpenNotification(with: param)
             let result = _present(
                 viewController: toController,
-                animated: animated,
+                animated: param.animated ?? animated,
                 param: param,
                 presentationStyle: presentationStyle ?? preferredPresentationStyle,
                 transitionExecutor: transitionExecutor
@@ -435,14 +435,14 @@ extension Router {
         let openStyle = routable.preferredOpenStyle ?? self.preferredOpenStyle
         switch openStyle {
         case .push:
-            result = push(viewController: viewController)
+            result = push(viewController: viewController, animated: animated)
             if !result {
-                result = present(viewController: viewController)
+                result = present(viewController: viewController, animated: animated)
             }
         case .present(let modalPresentationStyle):
-            result = present(viewController: viewController, presentationStyle: modalPresentationStyle)
+            result = present(viewController: viewController, animated: animated, presentationStyle: modalPresentationStyle)
             if !result {
-                result = push(viewController: viewController)
+                result = push(viewController: viewController, animated: animated)
             }
         }
         return result

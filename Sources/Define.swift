@@ -38,6 +38,8 @@ extension Route {
     public static let defaultScheme = "reer"
     
     public static let fallbackURLKey = "route_fallback_url"
+
+    public static let noAnimationKey = "route_no_animation"
     
     public typealias Action = (_ params: Route.Param) -> Void
 }
