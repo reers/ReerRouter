@@ -95,13 +95,17 @@ extension ExampleListViewController: UITableViewDelegate {
             Router.shared.push(user.urlString, userInfo: [
                 "userInfo1": "abcd",
                 "userInfo2": "dkjk"
-            ])
+            ]) { success in
+                print("~~~~ completion test push \(user.urlString) \(success ? "success" : "failed")")
+            }
         }
         else if indexPath.row == 1 {
             Router.shared.present(byKey: .userPage, embedIn: UINavigationController.self, userInfo: [
                 "name": "apple",
                 "id": "123123"
-            ])
+            ]) { success in
+                print("~~~~ completion test present \(Route.Key.userPage) \(success ? "success" : "failed")")
+            }
         }
         else if indexPath.row == 2 {
             AppRouter.present(user.urlString, presentationStyle: .formSheet)
@@ -128,7 +132,9 @@ extension ExampleListViewController: UITableViewDelegate {
             AppRouter.present(user.urlString, transitionExecutor: .delegate)
         }
         else {
-            Router.shared.open(user.urlString)
+            Router.shared.open(user.urlString) { success in
+                print("~~~~ completion test open \(user.urlString) \(success ? "success" : "failed")")
+            }
         }
     }
 }

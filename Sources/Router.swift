@@ -103,17 +103,20 @@ extension Router {
     ///     // Also you can execute action by url
     ///     AppRouter.open("myapp://some_action")
     @discardableResult
-    public func executeAction(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
+    public func executeAction(byKey key: Route.Key, userInfo: [String: Any] = [:], completion: Route.Completion? = nil) -> Bool {
         let id = key.id(with: host)
         guard let action = actionMap[id] else {
+            completion?(false)
             return false
         }
         guard let url = key.url(with: host) else {
             assert(false, "Generate url failed for \(id)")
+            completion?(false)
             return false
         }
         let param = Route.Param(url: url, userInfo: userInfo)
         action(param)
+        completion?(true)
         return true
     }
 }
@@ -208,12 +211,12 @@ extension Router {
     ///     // Route.Key can be expressed by string, so you can use a string as the key.
     ///     Router.shared.open(byKey: "user")
     @discardableResult
-    public func open(byKey key: Route.Key, userInfo: [String: Any] = [:]) -> Bool {
+    public func open(byKey key: Route.Key, userInfo: [String: Any] = [:], completion: Route.Completion? = nil) -> Bool {
         guard let url = key.url(with: host) else {
             assert(false, "Generate url failed for \(key)")
             return false
         }
-        return open(url, userInfo: userInfo)
+        return open(url, userInfo: userInfo, completion: completion)
     }
     
     /// Open a page or execute an action by a url.
@@ -222,10 +225,14 @@ extension Router {
     ///     Router.shared.open("myapp://user?name=apple")
     ///     Router.shared.open(URL(string: "myapp://user?name=apple")!)
     @discardableResult
-    public func open(_ url: URLConvertible, userInfo: [String: Any] = [:]) -> Bool {
-        guard var url = url.urlValue else { return false }
+    public func open(_ url: URLConvertible, userInfo: [String: Any] = [:], completion: Route.Completion? = nil) -> Bool {
+        guard var url = url.urlValue else {
+            completion?(false)
+            return false
+        }
         if !isAllowedForScheme(url.scheme) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
             return false
         }
         if let delegate = delegate {
@@ -233,6 +240,7 @@ extension Router {
                 url = modifiedURL
             } else {
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                completion?(false)
                 return false
             }
         }
@@ -244,29 +252,32 @@ extension Router {
                 tellDelegateResult(true, forURL: url, userInfo: userInfo)
                 sendDidOpenNotificationIfNeeded(true, with: param)
             }
+            completion?(true)
             return true
         } else if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
-                return open(redirectURL, userInfo: userInfo)
+                return open(redirectURL, userInfo: userInfo, completion: completion)
             }
             guard let routableViewController = routable.init(param: param) else {
                 assert(false, "Init \(routable) failed.")
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                completion?(false)
                 return false
             }
             sendWillOpenNotification(with: param)
-            let result = open(routable: routableViewController, animated: param.animated ?? true)
+            let result = open(routable: routableViewController, animated: param.animated ?? true, completion: completion)
             tellDelegateResult(result, forURL: url, userInfo: userInfo)
             sendDidOpenNotificationIfNeeded(result, with: param)
             return result
         } else {
             if let fallbackURL = param.fallbackURL {
-                let result = open(fallbackURL, userInfo: userInfo)
+                let result = open(fallbackURL, userInfo: userInfo, completion: completion)
                 if result { delegate?.router(self, didFallbackToURL: fallbackURL, userInfo: userInfo) }
                 return result
             }
             assert(false, "\(param.routeID) can NOT be handled.")
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
             return false
         }
     }
@@ -279,10 +290,14 @@ extension Router {
         byKey key: Route.Key,
         userInfo: [String: Any] = [:],
         animated: Bool = true,
-        transitionExecutor: Route.TransitionExecutor = .router
+        transitionExecutor: Route.TransitionExecutor = .router,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        guard let url = key.url(with: host) else { return false }
-        return push(url, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor)
+        guard let url = key.url(with: host) else {
+            completion?(false)
+            return false
+        }
+        return push(url, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor, completion: completion)
     }
     
     /// Push a view controller by a url.
@@ -293,11 +308,16 @@ extension Router {
         _ url: URLConvertible,
         userInfo: [String: Any] = [:],
         animated: Bool = true,
-        transitionExecutor: Route.TransitionExecutor = .router
+        transitionExecutor: Route.TransitionExecutor = .router,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        guard var url = url.urlValue else { return false }
+        guard var url = url.urlValue else {
+            completion?(false)
+            return false
+        }
         if !isAllowedForScheme(url.scheme) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
             return false
         }
         if let delegate = delegate {
@@ -305,17 +325,19 @@ extension Router {
                 url = modifiedURL
             } else {
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                completion?(false)
                 return false
             }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
         if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
-                return push(redirectURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor)
+                return push(redirectURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor, completion: completion)
             }
             guard let routableViewController = routable.init(param: param) else {
                 assert(false, "Init \(routable) failed.")
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                completion?(false)
                 return false
             }
             let viewController = routableViewController as UIViewController
@@ -324,19 +346,21 @@ extension Router {
                 viewController: viewController,
                 animated: param.animated ?? animated,
                 param: param,
-                transitionExecutor: transitionExecutor
+                transitionExecutor: transitionExecutor,
+                completion: completion
             )
             tellDelegateResult(result, forURL: url, userInfo: userInfo)
             sendDidOpenNotificationIfNeeded(result, with: param)
             return result
         } else {
             if let fallbackURL = param.fallbackURL {
-                let result = push(fallbackURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor)
+                let result = push(fallbackURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor, completion: completion)
                 if result { delegate?.router(self, didFallbackToURL: fallbackURL, userInfo: userInfo) }
                 return result
             }
             assert(false, "\(param.routeID) can NOT be handled.")
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
             return false
         }
     }
@@ -351,16 +375,21 @@ extension Router {
         userInfo: [String: Any] = [:],
         animated: Bool = true,
         presentationStyle: UIModalPresentationStyle? = nil,
-        transitionExecutor: Route.TransitionExecutor = .router
+        transitionExecutor: Route.TransitionExecutor = .router,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        guard let url = key.url(with: host) else { return false }
+        guard let url = key.url(with: host) else {
+            completion?(false)
+            return false
+        }
         return present(
             url,
             embedIn: navigationControllerClass,
             userInfo: userInfo,
             animated: animated,
             presentationStyle: presentationStyle,
-            transitionExecutor: transitionExecutor
+            transitionExecutor: transitionExecutor,
+            completion: completion
         )
     }
     
@@ -374,11 +403,16 @@ extension Router {
         userInfo: [String: Any] = [:],
         animated: Bool = true,
         presentationStyle: UIModalPresentationStyle? = nil,
-        transitionExecutor: Route.TransitionExecutor = .router
+        transitionExecutor: Route.TransitionExecutor = .router,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        guard var url = url.urlValue else { return false }
+        guard var url = url.urlValue else {
+            completion?(false)
+            return false
+        }
         if !isAllowedForScheme(url.scheme) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
             return false
         }
         if let delegate = delegate {
@@ -386,6 +420,7 @@ extension Router {
                 url = modifiedURL
             } else {
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                completion?(false)
                 return false
             }
         }
@@ -397,12 +432,14 @@ extension Router {
                     embedIn: navigationControllerClass,
                     userInfo: userInfo,
                     animated: animated,
-                    transitionExecutor: transitionExecutor
+                    transitionExecutor: transitionExecutor,
+                    completion: completion
                 )
             }
             guard let routableViewController = routable.init(param: param) else {
                 assert(false, "Init \(routable) failed.")
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                completion?(false)
                 return false
             }
             var toController = routableViewController as UIViewController
@@ -416,7 +453,8 @@ extension Router {
                 animated: param.animated ?? animated,
                 param: param,
                 presentationStyle: presentationStyle ?? preferredPresentationStyle,
-                transitionExecutor: transitionExecutor
+                transitionExecutor: transitionExecutor,
+                completion: completion
             )
             tellDelegateResult(result, forURL: url, userInfo: userInfo)
             sendDidOpenNotificationIfNeeded(result, with: param)
@@ -428,33 +466,35 @@ extension Router {
                     embedIn: navigationControllerClass,
                     userInfo: userInfo,
                     animated: animated,
-                    transitionExecutor: transitionExecutor
+                    transitionExecutor: transitionExecutor,
+                    completion: completion
                 )
                 if result { delegate?.router(self, didFallbackToURL: fallbackURL, userInfo: userInfo) }
                 return result
             }
             assert(false, "\(param.routeID) can NOT be handled.")
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
             return false
         }
     }
     
     /// Open a view controller with the default open style.
     @discardableResult
-    public func open(routable: Routable, animated: Bool = true) -> Bool {
+    public func open(routable: Routable, animated: Bool = true, completion: Route.Completion? = nil) -> Bool {
         let viewController = routable as UIViewController
         var result = false
         let openStyle = routable.preferredOpenStyle ?? self.preferredOpenStyle
         switch openStyle {
         case .push:
-            result = push(viewController: viewController, animated: animated)
+            result = push(viewController: viewController, animated: animated, completion: completion)
             if !result {
-                result = present(viewController: viewController, animated: animated)
+                result = present(viewController: viewController, animated: animated, completion: completion)
             }
         case .present(let modalPresentationStyle):
-            result = present(viewController: viewController, animated: animated, presentationStyle: modalPresentationStyle)
+            result = present(viewController: viewController, animated: animated, presentationStyle: modalPresentationStyle, completion: completion)
             if !result {
-                result = push(viewController: viewController, animated: animated)
+                result = push(viewController: viewController, animated: animated, completion: completion)
             }
         }
         return result
@@ -464,9 +504,10 @@ extension Router {
     @discardableResult
     public func push(
         viewController: UIViewController,
-        animated: Bool = true
+        animated: Bool = true,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        return _push(viewController: viewController, animated: animated)
+        return _push(viewController: viewController, animated: animated, completion: completion)
     }
     
     /// Present a view controller with the default open style.
@@ -474,9 +515,10 @@ extension Router {
     public func present(
         viewController: UIViewController,
         animated: Bool = true,
-        presentationStyle: UIModalPresentationStyle = .fullScreen
+        presentationStyle: UIModalPresentationStyle = .fullScreen,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        return _present(viewController: viewController, animated: animated, presentationStyle: presentationStyle)
+        return _present(viewController: viewController, animated: animated, presentationStyle: presentationStyle, completion: completion)
     }
 }
 
@@ -490,25 +532,38 @@ extension Router {
         viewController: UIViewController,
         animated: Bool = true,
         param: Route.Param = .default,
-        transitionExecutor: Route.TransitionExecutor = .router
+        transitionExecutor: Route.TransitionExecutor = .router,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        guard !(viewController is UINavigationController) else { return false }
-        guard let topNavigationController = UIApplication.shared.topMostNavigationController else { return false }
+        guard !(viewController is UINavigationController) else {
+            completion?(false)
+            return false
+        }
+        guard let topNavigationController = UIApplication.shared.topMostNavigationController else {
+            completion?(false)
+            return false
+        }
         switch transitionExecutor {
         case .router:
-            topNavigationController.pushViewController(viewController, animated: animated)
+            topNavigationController.pushViewController(viewController, animated: animated) {
+                completion?(true)
+            }
             return true
         case .user(let execute):
-            return execute(topNavigationController, nil, viewController)
+            let result = execute(topNavigationController, nil, viewController)
+            completion?(result)
+            return result
         case .delegate:
             guard let delegate = delegate else { return false }
-            return delegate.routeTransition(
+            let result = delegate.routeTransition(
                 with: self,
                 param: param,
                 fromNavigationController: topNavigationController,
                 fromViewController: nil,
                 toViewController: viewController
             )
+            completion?(result)
+            return result
         }
     }
     
@@ -518,25 +573,35 @@ extension Router {
         animated: Bool = true,
         param: Route.Param = .default,
         presentationStyle: UIModalPresentationStyle = .fullScreen,
-        transitionExecutor: Route.TransitionExecutor = .router
+        transitionExecutor: Route.TransitionExecutor = .router,
+        completion: Route.Completion? = nil
     ) -> Bool {
-        guard let topViewController = UIApplication.shared.topMostViewController else { return false }
+        guard let topViewController = UIApplication.shared.topMostViewController else {
+            completion?(false)
+            return false
+        }
         switch transitionExecutor {
         case .router:
             viewController.modalPresentationStyle = presentationStyle
-            topViewController.present(viewController, animated: animated)
+            topViewController.present(viewController, animated: animated) {
+                completion?(true)
+            }
             return true
         case .user(let execute):
-            return execute(nil, topViewController, viewController)
+            let result = execute(nil, topViewController, viewController)
+            completion?(result)
+            return result
         case .delegate:
             guard let delegate = delegate else { return false }
-            return delegate.routeTransition(
+            let result = delegate.routeTransition(
                 with: self,
                 param: param,
                 fromNavigationController: nil,
                 fromViewController: topViewController,
                 toViewController: viewController
             )
+            completion?(result)
+            return result
         }
     }
     

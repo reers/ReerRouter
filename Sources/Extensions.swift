@@ -231,6 +231,23 @@ extension UIApplication {
     }
 }
 
+public extension UINavigationController {
+
+    /// Push ViewController with completion handler.
+    ///
+    /// - Parameters:
+    ///   - viewController: viewController to push.
+    ///   - completion: optional completion handler (default is nil).
+    func pushViewController(_ viewController: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {
+        pushViewController(viewController, animated: animated)
+        guard animated, let coordinator = transitionCoordinator else {
+            DispatchQueue.main.async { completion?() }
+            return
+        }
+        coordinator.animate(alongsideTransition: nil) { _ in completion?() }
+    }
+}
+
 /// Make `Bool?` to a oppsite value if it is not nil.
 prefix operator !
 prefix func ! (value: Bool?) -> Bool? {
