@@ -223,14 +223,18 @@ extension Router {
     ///     Router.shared.open(URL(string: "myapp://user?name=apple")!)
     @discardableResult
     public func open(_ url: URLConvertible, userInfo: [String: Any] = [:]) -> Bool {
-        guard let url = url.urlValue else { return false }
+        guard var url = url.urlValue else { return false }
         if !isAllowedForScheme(url.scheme) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             return false
         }
-        guard let url = delegate?.router(self, willOpenURL: url, userInfo: userInfo) else {
-            defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
-            return false
+        if let delegate = delegate {
+            if let modifiedURL = delegate.router(self, willOpenURL: url, userInfo: userInfo) {
+                url = modifiedURL
+            } else {
+                defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                return false
+            }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
         if let action = actionMap[param.routeID] {
@@ -291,14 +295,18 @@ extension Router {
         animated: Bool = true,
         transitionExecutor: Route.TransitionExecutor = .router
     ) -> Bool {
-        guard let url = url.urlValue else { return false }
+        guard var url = url.urlValue else { return false }
         if !isAllowedForScheme(url.scheme) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             return false
         }
-        guard let url = delegate?.router(self, willOpenURL: url, userInfo: userInfo) else {
-            defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
-            return false
+        if let delegate = delegate {
+            if let modifiedURL = delegate.router(self, willOpenURL: url, userInfo: userInfo) {
+                url = modifiedURL
+            } else {
+                defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                return false
+            }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
         if let routable = routableMap[param.routeID] {
@@ -368,14 +376,18 @@ extension Router {
         presentationStyle: UIModalPresentationStyle? = nil,
         transitionExecutor: Route.TransitionExecutor = .router
     ) -> Bool {
-        guard let url = url.urlValue else { return false }
+        guard var url = url.urlValue else { return false }
         if !isAllowedForScheme(url.scheme) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             return false
         }
-        guard let url = delegate?.router(self, willOpenURL: url, userInfo: userInfo) else {
-            defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
-            return false
+        if let delegate = delegate {
+            if let modifiedURL = delegate.router(self, willOpenURL: url, userInfo: userInfo) {
+                url = modifiedURL
+            } else {
+                defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+                return false
+            }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
         if let routable = routableMap[param.routeID] {
