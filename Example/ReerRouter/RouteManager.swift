@@ -10,6 +10,7 @@ import ReerRouter
 
 final class RouteManager {
     static let `default` = RouteManager()
+    private init() {}
     
     var rootNavigationController: UINavigationController?
     
