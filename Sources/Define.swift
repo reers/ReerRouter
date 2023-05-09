@@ -42,6 +42,8 @@ extension Route {
     public static let noAnimationKey = "route_no_animation"
     
     public typealias Action = (_ params: Route.Param) -> Void
+    
+    public typealias Completion = (_ success: Bool) -> Void
 }
 
 public typealias UIViewControllerClassName = String
