@@ -34,10 +34,13 @@ extension Route {
             return sourceURL.fragment ?? ""
         }
         
+        /// Params from url query
         public let queryParams: [String: String]
         
+        /// Params from `init` method
         public let userInfo: [String: Any]
         
+        /// Combination of `queryParams` and `userInfo`
         public let allParams: [String: Any]
        
         public init(url:URL, userInfo: [String: Any] = [:]) {
