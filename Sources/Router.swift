@@ -49,6 +49,8 @@ open class Router {
     
     private var actionMap: [Route.ID: Route.Action] = [:]
     private var routableMap: [Route.ID: Routable.Type] = [:]
+    
+    private var interceptors: [Route.ID: [Route.Interception]] = [:]
 }
 
 
@@ -171,6 +173,25 @@ extension Router {
 }
 
 
+// MARK: - Interception
+
+extension Router {
+    
+    /// Add a interception block for a certain route.
+    /// Return false for the block means you want to stop routing for the url.
+    public func addInterceptor(forKey key: Route.Key, interception: @escaping Route.Interception) {
+        let id = key.id(with: host)
+        var interceptions = interceptors[id] ?? []
+        interceptions.append(interception)
+        interceptors[id] = interceptions
+    }
+    
+    public func removeInterceptor(forKey key: Route.Key) {
+        interceptors.removeValue(forKey: key.id(with: host))
+    }
+}
+
+
 // MARK: - Getter
 
 extension Router {
@@ -245,6 +266,11 @@ extension Router {
             }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
+        if let interceptions = interceptors[param.routeID], !interceptions.reduce(true, { $0 && $1(param) }) {
+            defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
+            return false
+        }
         if let action = actionMap[param.routeID] {
             sendWillOpenNotification(with: param)
             action(param)
@@ -330,6 +356,11 @@ extension Router {
             }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
+        if let interceptions = interceptors[param.routeID], !interceptions.reduce(true, { $0 && $1(param) }) {
+            defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
+            return false
+        }
         if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return push(redirectURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor, completion: completion)
@@ -425,6 +456,11 @@ extension Router {
             }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
+        if let interceptions = interceptors[param.routeID], !interceptions.reduce(true, { $0 && $1(param) }) {
+            defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
+            completion?(false)
+            return false
+        }
         if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return present(

@@ -44,6 +44,8 @@ extension Route {
     public typealias Action = (_ params: Route.Param) -> Void
     
     public typealias Completion = (_ success: Bool) -> Void
+    
+    public typealias Interception = (_ params: Route.Param) -> Bool
 }
 
 public typealias UIViewControllerClassName = String

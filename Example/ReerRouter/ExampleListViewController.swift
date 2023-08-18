@@ -18,6 +18,7 @@ class ExampleListViewController: UIViewController {
         Example(name: "apple", urlString: "present .user"),
         Example(name: "google", urlString: "myapp://user?name=google&route_no_animation=1"),
         Example(name: "intercept by delegate", urlString: "myapp://user?name=bytedance"),
+        Example(name: "intercept by biz", urlString: "myapp://user?name=google"),
         Example(name: "facebook", urlString: "myapp://user?name=facebook"),
         Example(name: "alert", urlString: "myapp://alert?title=Hello&message=World"),
         Example(name: "not allowed scheme", urlString: "notAllowedScheme://user"),
@@ -52,6 +53,21 @@ class ExampleListViewController: UIViewController {
         self.tableView.dataSource = self
         self.tableView.delegate = self
         self.tableView.register(ExampleCell.self, forCellReuseIdentifier: "user")
+        
+        
+        Router.shared.addInterceptor(forKey: .userPage) { _ in
+            print("~~~~ 1111 intercepted user page")
+            return true
+        }
+        
+        Router.shared.addInterceptor(forKey: .userPage) { params in
+            print("~~~~ 2222 intercepted user page")
+            if let name = params.allParams["name"] as? String, name == "google" {
+                print("~~~~ 2222 intercepted user page success")
+                return false
+            }
+            return true
+        }
     }
     
     
