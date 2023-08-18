@@ -269,6 +269,24 @@ The priority levels on which the way router opens the controller depend are as f
 Router.shared.open("myapp://user?name=google&route_no_animation=1")
 ```
 
+### 13. Intercept by external.
+Intercept a route in some special scenarios, return false means to intercept the url.
+```
+Router.shared.addInterceptor(forKey: .userPage) { (_) -> Bool in
+    print("intercepted user page")
+    return true
+}
+
+Router.shared.addInterceptor(forKey: .userPage) { (params) -> Bool in
+    print("intercepted user page")
+    if let name = params.allParams["name"] as? String, name == "google" {
+        print("intercepted user page success")
+        return false
+    }
+    return true
+}
+```
+
 ## Author
 
 phoenix, x.rhythm@qq.com
