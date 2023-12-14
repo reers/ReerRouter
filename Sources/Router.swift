@@ -206,11 +206,21 @@ extension Router {
         return routableViewController as UIViewController
     }
     
+    public func viewController(for key: Route.Key, userInfo: [String: Any] = [:]) -> UIViewController? {
+        guard let url = key.url(with: host) else { return nil }
+        return viewController(for: url, userInfo: userInfo)
+    }
+    
     public func action(for url: URLConvertible) -> Route.Action? {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url)
         return actionMap[param.routeID]
+    }
+    
+    public func action(for key: Route.Key) -> Route.Action? {
+        guard let url = key.url(with: host) else { return nil }
+        return action(for: url)
     }
 }
 
@@ -515,7 +525,7 @@ extension Router {
         }
     }
     
-    /// Open a view controller with the default open style.
+    /// Open a `Routable` view controller with the default open style.
     @discardableResult
     public func open(routable: Routable, animated: Bool = true, completion: Route.Completion? = nil) -> Bool {
         let viewController = routable as UIViewController
@@ -529,6 +539,43 @@ extension Router {
             }
         case .present(let modalPresentationStyle):
             result = present(viewController: viewController, animated: animated, presentationStyle: modalPresentationStyle, completion: completion)
+            if !result {
+                result = push(viewController: viewController, animated: animated, completion: completion)
+            }
+        }
+        return result
+    }
+    
+    /// Open a view controller with the default open style. Pass a navigationVC class if needed for presenting.
+    @discardableResult
+    public func open(
+        viewController: UIViewController,
+        animated: Bool = true,
+        openStyle: Route.OpenStyle? = nil,
+        embedIn navigationControllerClass: UINavigationController.Type? = nil,
+        completion: Route.Completion? = nil
+    ) -> Bool {
+        var result = false
+        let openStyle = openStyle ?? self.preferredOpenStyle
+        switch openStyle {
+        case .push:
+            result = push(viewController: viewController, animated: animated, completion: completion)
+            if !result {
+                result = present(
+                    viewController: viewController,
+                    animated: animated,
+                    embedIn: navigationControllerClass,
+                    completion: completion
+                )
+            }
+        case .present(let modalPresentationStyle):
+            result = present(
+                viewController: viewController,
+                animated: animated,
+                presentationStyle: modalPresentationStyle,
+                embedIn: navigationControllerClass,
+                completion: completion
+            )
             if !result {
                 result = push(viewController: viewController, animated: animated, completion: completion)
             }
@@ -552,8 +599,14 @@ extension Router {
         viewController: UIViewController,
         animated: Bool = true,
         presentationStyle: UIModalPresentationStyle = .fullScreen,
+        embedIn navigationControllerClass: UINavigationController.Type? = nil,
         completion: Route.Completion? = nil
     ) -> Bool {
+        var viewController = viewController
+        if let navigationControllerClass = navigationControllerClass,
+           !(viewController is UINavigationController) {
+            viewController = navigationControllerClass.init(rootViewController: viewController)
+        }
         return _present(viewController: viewController, animated: animated, presentationStyle: presentationStyle, completion: completion)
     }
 }
