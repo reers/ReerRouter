@@ -28,7 +28,7 @@ let package = Package(
     name: "YOUR_PROJECT_NAME",
     targets: [],
     dependencies: [
-        .package(url: "https://github.com/reers/ReerRouter.git", from: "1.0.1")
+        .package(url: "https://github.com/reers/ReerRouter.git", from: "1.0.2")
     ]
 )
 ```
