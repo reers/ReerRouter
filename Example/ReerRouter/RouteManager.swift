@@ -8,6 +8,38 @@
 import Foundation
 import ReerRouter
 
+/*
+#route(key: "", action: {
+    
+})
+ 
+@Routable(.chat)
+@objc(AAChatViewController)
+class ChatViewController: NSObject {
+    func test() {
+        
+    }
+}
+
+@Routable("setting")
+class SettingViewController: NSObject {
+    func test() {
+        
+    }
+}
+ 
+#routeHost("example.com")
+ 
+ or
+ 
+extension Router: RouterConfigable {
+    public static var host: String {
+        return "example.com"
+    }
+}
+
+*/
+
 final class RouteManager {
     static let `default` = RouteManager()
     private init() {}
