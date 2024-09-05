@@ -1,4 +1,4 @@
-// swift-tools-version: 5.5
+// swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "ReerRouter",
     platforms: [
-        .iOS(.v10)
+        .iOS(.v13),
+        .macOS(.v10_15),
     ],
     products: [
         .library(
@@ -16,7 +17,10 @@ let package = Package(
     targets: [
         .target(
             name: "ReerRouter",
-            path: "Sources")
+            dependencies: ["Launcher"],
+            path: "Sources/ReerRouter"
+        ),
+        .target(name: "Launcher")
     ]
 )
 

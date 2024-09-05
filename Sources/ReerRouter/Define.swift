@@ -73,9 +73,7 @@ public protocol Routable: UIViewController {
 public extension Routable {
     static func redirectURLWithRouteParam(_ param: Route.Param) -> URL? { return nil }
 
-    var preferredOpenStyle: Route.OpenStyle? {
-        return nil
-    }
+    var preferredOpenStyle: Route.OpenStyle? { return nil }
 }
 
 
@@ -128,4 +126,14 @@ extension Route {
     ///
     ///     if let param = notification.userInfo?[Route.notificationUserInfoKey] as? Route.Param {}
     public static let notificationUserInfoKey = "ReerRouterNotificationUserInfoKey"
+}
+
+public protocol RouterConfigable: Router {
+    static var host: String { get }
+    static var isAutoRegisterEnabled: Bool { get }
+}
+
+extension RouterConfigable {
+    static var host: String { return "" }
+    static var isAutoRegisterEnabled: Bool { return true }
 }
