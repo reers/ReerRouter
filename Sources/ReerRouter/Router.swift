@@ -53,6 +53,25 @@ open class Router {
     private var interceptors: [Route.ID: [Route.Interception]] = [:]
 }
 
+// MARK: - Launch
+extension Router {
+    @objc
+    public static func router_load() {
+        if let configable = self as? RouterConfigable.Type {
+            if configable.isAutoRegisterEnabled {
+                Router.shared.registerRoutes()
+            }
+            Router.shared.host = configable.host
+        } else {
+            Router.shared.registerRoutes()
+        }
+    }
+    
+    public func registerRoutes() {
+        
+    }
+}
+
 
 // MARK: - Enable
 
