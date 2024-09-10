@@ -11,7 +11,7 @@ extension Route {
     
     /// Generate by open url and user info dictionary,
     /// and it will be passed to the `init(param: Route.Param)` of the routable UIViewController.
-    public struct Param {
+    public class Param: NSObject {
         public let sourceURL: URL
         
         public var scheme: String {
