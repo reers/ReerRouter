@@ -12,6 +12,9 @@ import UIKit
 /// Namespcace
 public enum Route {}
 
+
+public typealias RouteActionInfo = (StaticString, Route.Action)
+
 extension Route {
     
     public enum OpenStyle {

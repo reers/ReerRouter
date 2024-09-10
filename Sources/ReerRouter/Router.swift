@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import MachO
 
 /// ReerRouter: Provides an elegant way to navigate through view controllers or actions by URLs.
 /// There are two ways to use the route key:
@@ -67,8 +68,123 @@ extension Router {
         }
     }
     
+    private static let segmentName = "__DATA"
+    private static let actionSectionName = "__rerouter_ac"
+    private static let vcSectionName = "__rerouter_vc"
+    
     public func registerRoutes() {
+        Router.readSectionDatas()
+    }
+    
+    private static func readSectionDatas() {
+        let imageCount = _dyld_image_count()
+
+        for i in 0..<imageCount {
+            let imageName = String(cString: _dyld_get_image_name(i))
+            guard imageName.hasPrefix(Bundle.main.bundlePath) else { continue }
+            guard let machHeader = _dyld_get_image_header(i) else { continue }
+            let slide = _dyld_get_image_vmaddr_slide(i)
+            readSectionData(header: machHeader, slide: slide)
+        }
+    }
+    
+    private static func readSectionData(
+        header: UnsafePointer<mach_header>,
+        slide: Int
+    ) {
+        var cursor = UnsafeRawPointer(header).advanced(by: MemoryLayout<mach_header_64>.size)
+        for _ in 0..<header.pointee.ncmds {
+            let segmentCmd = cursor.bindMemory(to: segment_command_64.self, capacity: 1)
+            cursor = cursor.advanced(by: MemoryLayout<segment_command_64>.size)
+            
+            if segmentCmd.pointee.cmd == LC_SEGMENT_64 {
+                let segmentNamePtr = withUnsafeBytes(of: segmentCmd.pointee.segname) { rawPtr -> String in
+                    guard let address = rawPtr.baseAddress else { return "" }
+                    let ptr = address.assumingMemoryBound(to: CChar.self)
+                    return String(cString: ptr)
+                }
+                
+                if segmentNamePtr == segmentName {
+                    var sectionCursor = cursor
+                    for _ in 0..<Int(segmentCmd.pointee.nsects) {
+                        let sectionCmd = sectionCursor.bindMemory(to: section_64.self, capacity: 1)
+                        sectionCursor = sectionCursor.advanced(by: MemoryLayout<section_64>.size)
+                        
+                        let sectionNamePtr = withUnsafeBytes(of: sectionCmd.pointee.sectname) { rawPtr -> String in
+                            guard let address = rawPtr.baseAddress else { return "" }
+                            let ptr = address.assumingMemoryBound(to: CChar.self)
+                            return String(cString: ptr)
+                        }
+                        if sectionNamePtr == actionSectionName || sectionNamePtr == vcSectionName {
+                            let sectionAddress = Int(sectionCmd.pointee.addr)
+                            let sectionSize = Int(sectionCmd.pointee.size)
+                            guard let sectionPointer = UnsafeRawPointer(bitPattern: sectionAddress) else {
+                                continue
+                            }
+                            let sectionStart = slide + sectionPointer
+                            
+                            if sectionNamePtr == actionSectionName {
+                                readActions(from: sectionStart, sectionSize: sectionSize)
+                            } else if sectionNamePtr == vcSectionName {
+                                readViewControllers(from: sectionStart, sectionSize: sectionSize)
+                            }
+                        }
+                    }
+                }
+            }
+            cursor = cursor.advanced(by: Int(segmentCmd.pointee.cmdsize) - MemoryLayout<segment_command_64>.size)
+        }
+    }
+    
+    private static func getInfoBuffer<InfoType>(
+        from sectionStart: UnsafeRawPointer,
+        sectionSize: Int
+    ) -> UnsafeBufferPointer<InfoType>? {
+        guard sectionSize > 0 else { return nil }
         
+        let typeSize = MemoryLayout<InfoType>.size
+        let typeStride = MemoryLayout<InfoType>.stride
+        let count =
+            if sectionSize == typeSize { 1 }
+            else {
+                1 + (sectionSize - typeSize) / typeStride
+            }
+        
+        let registerInfoPtr = sectionStart.bindMemory(to: InfoType.self, capacity: count)
+        return UnsafeBufferPointer(start: registerInfoPtr, count: count)
+    }
+    
+    private static func readActions(from sectionStart: UnsafeRawPointer, sectionSize: Int) {
+        guard let buffer: UnsafeBufferPointer<RouteActionInfo> = getInfoBuffer(
+            from: sectionStart,
+            sectionSize: sectionSize
+        ) else { return }
+        
+        for info in buffer {
+            let string = info.0.description
+            let function = info.1
+            Router.shared.registerAction(with: string.routeKey, function)
+        }
+    }
+    
+    private static func readViewControllers(from sectionStart: UnsafeRawPointer, sectionSize: Int) {
+        guard let buffer: UnsafeBufferPointer<StaticString> = getInfoBuffer(
+            from: sectionStart,
+            sectionSize: sectionSize
+        ) else { return }
+        
+        for info in buffer {
+            let parts = info.description.components(separatedBy: ":")
+            if parts.count == 2 {
+                let key = parts[0]
+                let vc = parts[1]
+                if let routableClass = NSClassFromString(vc) as? Routable.Type {
+                    Router.shared.register(routableClass, forKey: key.routeKey)
+                }
+            } else {
+                assert(false, "Register controller should have 2 parts")
+            }
+        }
     }
 }
 

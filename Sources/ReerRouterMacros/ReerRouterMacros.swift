@@ -51,7 +51,7 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
         let declarationString = """
             @_used 
             @_section("__DATA,__rerouter_ac")
-            \(staticString)let \(infoName): (StaticString, Route.Action) = (
+            \(staticString)let \(infoName): RouteActionInfo = (
                 "\(key)",
                 { \(signature ?? "param in")
                     \(functionBody)
