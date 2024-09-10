@@ -11,3 +11,5 @@ public macro route(
     action: Route.Action
 ) = #externalMacro(module: "ReerRouterMacros", type: "WriteRouteActionToSectionMacro")
 	
+@attached(extension, conformances: Routable, names: arbitrary)
+public macro Routable(_ key: Route.Key) = #externalMacro(module: "ReerRouterMacros", type: "WriteRouteVCToSectionMacro")
