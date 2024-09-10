@@ -10,7 +10,7 @@ import UIKit
 
 extension String {
     var routeKey: Route.Key {
-        return Route.Key(rawValue: self)!
+        return Route.Key(rawValue: self)
     }
     
     func toURL() -> URL? {
