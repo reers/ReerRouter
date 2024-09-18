@@ -10,6 +10,7 @@
 #endif
 #endif
 
+#import "ReerRouterLauncher.h"
 
 FOUNDATION_EXPORT double ReerRouterVersionNumber;
 FOUNDATION_EXPORT const unsigned char ReerRouterVersionString[];
