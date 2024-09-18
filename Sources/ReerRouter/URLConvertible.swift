@@ -5,6 +5,7 @@
 //  Created by YuYue on 2022/7/26.
 //
 
+#if canImport(UIKit)
 import Foundation
 
 /// A type which can be converted to an URL string.
@@ -23,3 +24,4 @@ extension URL: URLConvertible {
         return self
     }
 }
+#endif

@@ -5,6 +5,7 @@
 //  Created by YuYue on 2022/7/24.
 //
 
+#if canImport(UIKit)
 import Foundation
 
 extension Route {
@@ -48,3 +49,4 @@ extension Route.Key {
         return "\(Route.defaultScheme)://\(id)".toURL()
     }
 }
+#endif

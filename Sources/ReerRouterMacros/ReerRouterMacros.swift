@@ -16,7 +16,7 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
         of node: some SwiftSyntax.FreestandingMacroExpansionSyntax,
         in context: some SwiftSyntaxMacros.MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let argumentList = node.argumentList
+        let argumentList = node.arguments
         var key: String = ""
         var functionBody: String = ""
         var signature: String?
@@ -173,9 +173,8 @@ public struct WriteRouteVCToSectionMacro: ExtensionMacro {
             return nil
         }
         
-        if let memberAccess = firstArgument.as(MemberAccessExprSyntax.self),
-           let identifier = memberAccess.declName.as(DeclReferenceExprSyntax.self)?.baseName.text {
-            return identifier
+        if let memberAccess = firstArgument.as(MemberAccessExprSyntax.self) {
+            return memberAccess.declName.baseName.text
         } else if let stringLiteral = firstArgument.as(StringLiteralExprSyntax.self),
                   let segment = stringLiteral.segments.first?.as(StringSegmentSyntax.self) {
             return segment.content.text
