@@ -131,6 +131,43 @@ Router.shared.registerPageClasses(with: ["preference": PreferenceViewController.
 Router.shared.registerPageClasses(with: ["preference": "ReerRouter_Example.PreferenceViewController"])
 ```
 
+* Register view controllers and actions via Swift Macro
+```
+extension Route.Key {
+    static let testKey: Self = "testKey"
+}
+
+struct Foo {
+    #route(key: .testKey, action: { params in
+        print("testKey triggered nested")
+    })
+}
+```
+
+```
+extension Route.Key {
+    static let chat: Route.Key = "chat"
+}
+
+@Routable(.chat)
+class ChatViewController: UIViewController {
+    required init?(param: Route.Param) {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    // ... other methods ...
+}
+
+@Routable("setting")
+class SettingViewController: UIViewController {
+    required init?(param: Route.Param) {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    // ... other methods ...
+}
+```
+
 #### Mode 2
 Firstly, you should set `host` for router instance.
 ```
