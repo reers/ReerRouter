@@ -25,13 +25,13 @@ it, simply add the following line to your Podfile:
 ```ruby
 pod 'ReerRouter'
 ```
-由于 CocoaPods 不支持直接使用 Swift Macro, 可以将宏实现编译为二进制提供使用, 接入方式如下, 需要在依赖路由的组件设置`s.pod_target_xcconfig`来加载宏实现的二进制插件:
+Due to CocoaPods not directly supporting Swift Macros, we can compile the macro implementation into a binary for usage. The integration method is as follows. It's necessary to set s.pod_target_xcconfig in the components that depend on the router to load the binary plugin of the macro implementation:
 ```
 s.user_target_xcconfig = {
     'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
   }
 ```
-或者, 如果不使用`s.pod_target_xcconfig`, 也可以在 podfile 中添加如下脚本统一处理:
+Alternatively, if you don't use s.pod_target_xcconfig, you can add the following script to your Podfile to handle it uniformly:
 ```
 post_install do |installer|
   installer.pods_project.targets.each do |target|
