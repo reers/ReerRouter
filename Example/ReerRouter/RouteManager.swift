@@ -40,6 +40,11 @@ extension Router: RouterConfigable {
 
 */
 
+// 注册名为 abc_action 的 action
+#route(key: "abc_action", action: { _ in
+    print("macro action executed.")
+})
+
 final class RouteManager {
     static let `default` = RouteManager()
     private init() {}
@@ -81,17 +86,18 @@ final class RouteManager {
         Router.shared.registerPageClasses(with: ["preference": "ReerRouter_Example.PreferenceViewController"])
         
         // 2. 控制器类型注册
-        Router.shared.register(NewPreferenceViewController.self, forKey: "new_preference")
+//        Router.shared.register(NewPreferenceViewController.self, forKey: "new_preference")
         Router.shared.register(TransitionExampleViewController.self, forKey: "transition_example")
         
         // 3. key 为 Route.Key 的静态常量
         Router.shared.register(UserViewController.self, forKey: .userPage)
         
         
+        
         // 注册名为 abc_action 的 action
-        Router.shared.registerAction(with: "abc_action") { _ in
-            print("action executed.")
-        }
+//        Router.shared.registerAction(with: "abc_action") { _ in
+//            print("action executed.")
+//        }
         
         // 注册与 page 同名的action, 将在debug下断言
 //        Router.shared.registerAction(with: "preference") { params in

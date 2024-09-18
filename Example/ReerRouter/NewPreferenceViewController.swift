@@ -8,7 +8,8 @@
 import UIKit
 import ReerRouter
 
-class NewPreferenceViewController: UIViewController, Routable {
+@Routable("new_preference")
+class NewPreferenceViewController: UIViewController {
 
     required init?(param: Route.Param) {
         super.init(nibName: nil, bundle: nil)

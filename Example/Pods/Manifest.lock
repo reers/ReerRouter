@@ -1,23 +1,16 @@
 PODS:
-  - ReerRouter (1.0.2)
-  - RheaTime (1.0.3)
+  - ReerRouter (2.0.0)
 
 DEPENDENCIES:
-  - ReerRouter (from `../`)
-  - RheaTime (= 1.0.3)
+  - ReerRouter (= 2.0.0)
 
 SPEC REPOS:
   trunk:
-    - RheaTime
-
-EXTERNAL SOURCES:
-  ReerRouter:
-    :path: "../"
+    - ReerRouter
 
 SPEC CHECKSUMS:
-  ReerRouter: 975610283351055f4bd3115402385592ec4eabed
-  RheaTime: 69f5c12dd629f52005ec689723f511665edc0c50
+  ReerRouter: fa20fdf3deabf9390adf53046dc6744aa2b3d626
 
-PODFILE CHECKSUM: 9cee90c05fef1ab1b0c49431aecfd2368713f16a
+PODFILE CHECKSUM: 497e4abbba624945d1ef98cdb6bf6460efdf16a5
 
 COCOAPODS: 1.15.2
