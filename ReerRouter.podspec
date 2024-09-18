@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ReerRouter'
-  s.version          = '1.0.2'
+  s.version          = '2.0.0'
   s.summary          = 'A router for iOS app.'
 
   s.description      = <<-DESC
@@ -20,8 +20,8 @@ Pod::Spec.new do |s|
   s.author           = { 'phoenix' => 'x.rhythm@qq.com' }
   s.source           = { :git => 'https://github.com/reers/ReerRouter.git', :tag => s.version.to_s }
   
-  s.swift_versions = '5.5'
-  s.ios.deployment_target = '10.0'
+  s.swift_versions = '5.10'
+  s.ios.deployment_target = '13.0'
 
   s.source_files = 'Sources/**/*'
   s.preserve_paths = ["Sources/Resources/ReerRouterMacros"]

@@ -10,8 +10,8 @@
 #endif
 #endif
 
-#import "ReerRouterLauncher.h"
+#import "OCRhea.h"
 
-FOUNDATION_EXPORT double ReerRouterVersionNumber;
-FOUNDATION_EXPORT const unsigned char ReerRouterVersionString[];
+FOUNDATION_EXPORT double RheaTimeVersionNumber;
+FOUNDATION_EXPORT const unsigned char RheaTimeVersionString[];
 

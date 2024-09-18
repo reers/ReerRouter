@@ -8,8 +8,13 @@ App URL router for iOS (Swift only). Inspired by [URLNavigator](https://github.c
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements
-At least iOS 10.0
-Xcode 13.2
+XCode 16.1 +
+
+iOS 13 +
+
+Swift 5.10
+
+swift-syntax 600.0.0
 
 ## Installation
 
@@ -20,6 +25,35 @@ it, simply add the following line to your Podfile:
 ```ruby
 pod 'ReerRouter'
 ```
+由于 CocoaPods 不支持直接使用 Swift Macro, 可以将宏实现编译为二进制提供使用, 接入方式如下, 需要在依赖路由的组件设置`s.pod_target_xcconfig`来加载宏实现的二进制插件:
+```
+s.user_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+  }
+```
+或者, 如果不使用`s.pod_target_xcconfig`, 也可以在 podfile 中添加如下脚本统一处理:
+```
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    rhea_dependency = target.dependencies.find { |d| ['ReerRouter'].include?(d.name) }
+    if rhea_dependency
+      puts "Adding Rhea Swift flags to target: #{target.name}"
+      target.build_configurations.each do |config|
+        swift_flags = config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
+        
+        plugin_flag = '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+        
+        unless swift_flags.join(' ').include?(plugin_flag)
+          swift_flags.concat(plugin_flag.split)
+        end
+        
+        config.build_settings['OTHER_SWIFT_FLAGS'] = swift_flags
+      end
+    end
+  end
+end
+
+```
 ### Swift Package Manager
 ```
 import PackageDescription
@@ -28,7 +62,7 @@ let package = Package(
     name: "YOUR_PROJECT_NAME",
     targets: [],
     dependencies: [
-        .package(url: "https://github.com/reers/ReerRouter.git", from: "1.0.2")
+        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.0.0")
     ]
 )
 ```
