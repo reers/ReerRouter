@@ -24,4 +24,14 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '10.0'
 
   s.source_files = 'Sources/**/*'
+  s.preserve_paths = ["Sources/Resources/ReerRouterMacros"]
+  s.exclude_files = 'Sources/ReerRouterMacros'
+  
+  s.pod_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+  }
+  
+  s.user_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+  }
 end

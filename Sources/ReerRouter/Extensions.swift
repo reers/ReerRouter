@@ -5,7 +5,7 @@
 //  Created by YuYue on 2022/7/25.
 //
 
-import Foundation
+#if canImport(UIKit)
 import UIKit
 
 extension String {
@@ -180,12 +180,6 @@ extension URL {
     }
 }
 
-extension CharacterSet {
-    static var reerRouterAllowed: CharacterSet {
-        return CharacterSet(charactersIn: ":/?#@!$&'(){}*+=")
-    }
-}
-
 extension Dictionary where Key == String, Value == String {
     var queryString: String {
         return self.map { "\($0)=\($1)" }.joined(separator: "&")
@@ -298,3 +292,4 @@ private extension UIScene.ActivationState {
         }
     }
 }
+#endif

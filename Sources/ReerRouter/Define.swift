@@ -5,6 +5,7 @@
 //  Created by YuYue on 2022/7/24.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 // MARK: - Definitions
@@ -140,3 +141,5 @@ extension RouterConfigable {
     static var host: String { return "" }
     static var isAutoRegisterEnabled: Bool { return true }
 }
+
+#endif

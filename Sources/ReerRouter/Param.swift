@@ -5,6 +5,7 @@
 //  Created by YuYue on 2022/7/24.
 //
 
+#if canImport(UIKit)
 import Foundation
 
 extension Route {
@@ -62,3 +63,4 @@ extension Route {
         public static var `default` = Param(url: URL(string: "\(Route.defaultScheme)://")!)
     }
 }
+#endif
