@@ -3,12 +3,53 @@
 # ReerRouter
 App URL router for iOS (Swift only). Inspired by [URLNavigator](https://github.com/devxoul/URLNavigator).
 
+Swift 5.10 and later support @_used and @_section, allowing data to be written into sections. Combined with Swift Macros, this enables capabilities similar to various decoupling and registration information methods from the Objective-C era. This framework also supports registering routes in this manner.
+
+Registering UIViewController
+```
+extension Route.Key {
+    // Note: The variable name 'chat' must exactly match the assigned string
+    static let chat: Route.Key = "chat"
+}
+
+@Routable(.chat)
+class ChatViewController: UIViewController {
+    required init?(param: Route.Param) {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    // ... other methods ...
+}
+
+@Routable("setting")
+class SettingViewController: UIViewController {
+    required init?(param: Route.Param) {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    // ... other methods ...
+}
+```
+Registering an action:
+```
+extension Route.Key {
+    // Note: The variable name 'testKey' must exactly match the assigned string
+    static let testKey: Self = "testKey"
+}
+
+struct Foo {
+    #route(key: .testKey, action: { params in
+        print("testKey triggered nested")
+    })
+}
+```
+🟡 Currently, the @_used and @_section capabilities are still an experimental feature in Swift and need to be enabled through configuration settings. Please refer to the integration documentation for details.
 
 ## Example App
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements
-XCode 16.1 +
+XCode 16.0 +
 
 iOS 13 +
 
@@ -25,13 +66,17 @@ it, simply add the following line to your Podfile:
 ```ruby
 pod 'ReerRouter'
 ```
-Due to CocoaPods not directly supporting Swift Macros, we can compile the macro implementation into a binary for usage. The integration method is as follows. It's necessary to set s.pod_target_xcconfig in the components that depend on the router to load the binary plugin of the macro implementation:
+As CocoaPods does not directly support the use of Swift Macros, the macro implementation can be compiled into a binary for use. The integration method is as follows. It's necessary to set s.pod_target_xcconfig in the components dependent on the router to load the binary plugin of the macro implementation:
 ```
-s.user_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+s.pod_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+  }
+  
+  s.user_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
   }
 ```
-Alternatively, if you don't use s.pod_target_xcconfig, you can add the following script to your Podfile to handle it uniformly:
+Alternatively, if s.pod_target_xcconfig is not used, you can add the following script to the Podfile for unified processing:
 ```
 post_install do |installer|
   installer.pods_project.targets.each do |target|
@@ -46,7 +91,14 @@ post_install do |installer|
         unless swift_flags.join(' ').include?(plugin_flag)
           swift_flags.concat(plugin_flag.split)
         end
-        
+
+        # Add experimental feature flag for SymbolLinkageMarkers
+        symbol_linkage_flag = '-enable-experimental-feature SymbolLinkageMarkers'
+
+        unless swift_flags.join(' ').include?(symbol_linkage_flag)
+          swift_flags.concat(symbol_linkage_flag.split)
+        end
+
         config.build_settings['OTHER_SWIFT_FLAGS'] = swift_flags
       end
     end
@@ -55,24 +107,33 @@ end
 
 ```
 ### Swift Package Manager
+For packages that need to depend on ReerRouter, it's necessary to enable the Swift experimental feature:
 ```
-import PackageDescription
-
+// Package.swift
 let package = Package(
-    name: "YOUR_PROJECT_NAME",
-    targets: [],
+    name: "APackageDependOnReerRouter",
+    platforms: [.iOS(.v13)],
+    products: [
+        .library(name: "APackageDependOnReerRouter", targets: ["APackageDependOnReerRouter"]),
+    ],
     dependencies: [
         .package(url: "https://github.com/reers/ReerRouter.git", from: "2.0.1")
+    ],
+    targets: [
+        .target(
+            name: "APackageDependOnReerRouter",
+            dependencies: [
+                .product(name: "ReerRouter", package: "ReerRouter")
+            ],
+            // Add here to enable the experimental feature
+            swiftSettings:[.enableExperimentalFeature("SymbolLinkageMarkers")]
+        ),
     ]
 )
 ```
-Next, add ReerRouter to your targets dependencies like so:
-```
-.target(
-    name: "YOUR_TARGET_NAME",
-    dependencies: ["ReerRouter",]
-),
-```
+In the main App Target's Build Settings, set to enable the experimental feature:
+-enable-experimental-feature SymbolLinkageMarkers
+![CleanShot 2024-10-12 at 20 39 59@2x](https://github.com/user-attachments/assets/6a15fd27-61cf-4d55-974e-8f6006577527)
 
 ## Getting Started
 ### 1. Understanding `Route.Key`
@@ -100,7 +161,14 @@ Mode 1: Set `host` for router instance and use `path` as the `Route.Key`.
 ///                         |
 ///                    route key
 ```
-
+You can configure to Mode 2 by implementing the RouterConfigable protocol:
+```
+extension Router: RouterConfigable {
+    public static var host: String {
+        return "example.com"
+    }
+}
+```
 ### 2. Register Route
 #### Mode 1
 Now `Route.Key` means the combination of url `host` and `path`.
@@ -356,6 +424,18 @@ Router.shared.addInterceptor(forKey: .userPage) { (params) -> Bool in
     }
     return true
 }
+```
+
+### 14. Customize the timing to retrieve routes registered in the section
+```
+extension Router: RouterConfigable {
+    // This configuration disables automatic retrieval
+    public static var isAutoRegisterEnabled: Bool {
+        return false
+    }
+}
+// Then call at an appropriate time
+Router.shared.registerRoutes()
 ```
 
 ## Author
