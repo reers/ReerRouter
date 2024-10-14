@@ -1,16 +1,16 @@
 PODS:
-  - ReerRouter (2.0.0)
+  - ReerRouter (2.0.1)
 
 DEPENDENCIES:
-  - ReerRouter (= 2.0.0)
+  - ReerRouter (= 2.0.1)
 
 SPEC REPOS:
   trunk:
     - ReerRouter
 
 SPEC CHECKSUMS:
-  ReerRouter: fa20fdf3deabf9390adf53046dc6744aa2b3d626
+  ReerRouter: e6def49faae2001bb1786208dab4e8490bf3418e
 
-PODFILE CHECKSUM: 497e4abbba624945d1ef98cdb6bf6460efdf16a5
+PODFILE CHECKSUM: a6c09023240c2596d3fed2fb63a16f8381b3406b
 
 COCOAPODS: 1.15.2

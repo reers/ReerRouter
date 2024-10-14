@@ -341,6 +341,7 @@
 				en,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
+			minimizedProjectReferenceProxies = 0;
 			productRefGroup = 15CB1DAB720E59230642B0F934546120 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -451,7 +452,7 @@
 				MODULEMAP_FILE = "Target Support Files/Pods-ReerRouter_Example/Pods-ReerRouter_Example.modulemap";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
-				OTHER_SWIFT_FLAGS = "$(inherited) -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros";
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros -enable-experimental-feature SymbolLinkageMarkers";
 				PODS_ROOT = "$(SRCROOT)";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -487,7 +488,7 @@
 				MODULEMAP_FILE = "Target Support Files/Pods-ReerRouter_Example/Pods-ReerRouter_Example.modulemap";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
-				OTHER_SWIFT_FLAGS = "$(inherited) -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros";
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros -enable-experimental-feature SymbolLinkageMarkers";
 				PODS_ROOT = "$(SRCROOT)";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
