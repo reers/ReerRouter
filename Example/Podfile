@@ -3,7 +3,7 @@ use_frameworks!
 platform :ios, '13.0'
 
 target 'ReerRouter_Example' do
-  pod 'ReerRouter', '2.0.0'
+  pod 'ReerRouter', '2.0.1'
 
   target 'ReerRouter_Tests' do
     inherit! :search_paths
@@ -25,7 +25,14 @@ post_install do |installer|
         unless swift_flags.join(' ').include?(plugin_flag)
           swift_flags.concat(plugin_flag.split)
         end
-        
+
+        # 添加 SymbolLinkageMarkers 实验性特性标志
+        symbol_linkage_flag = '-enable-experimental-feature SymbolLinkageMarkers'
+
+        unless swift_flags.join(' ').include?(symbol_linkage_flag)
+          swift_flags.concat(symbol_linkage_flag.split)
+        end
+
         config.build_settings['OTHER_SWIFT_FLAGS'] = swift_flags
       end
     end
