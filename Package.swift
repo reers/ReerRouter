@@ -33,7 +33,8 @@ let package = Package(
         .target(
             name: "ReerRouter",
             dependencies: ["RouterLauncher", "ReerRouterMacros"],
-            path: "Sources/ReerRouter"
+            path: "Sources/ReerRouter",
+            swiftSettings: [.enableExperimentalFeature("SymbolLinkageMarkers")]
         ),
         .target(name: "RouterLauncher")
     ]
