@@ -49,7 +49,7 @@ open class Router {
     open var host: String = ""
     
     private var actionMap: [Route.ID: Route.Action] = [:]
-    private var routableMap: [Route.ID: Routable.Type] = [:]
+    private var routableMap: [Route.ID: any Routable.Type] = [:]
     
     private var interceptors: [Route.ID: [Route.Interception]] = [:]
 }
@@ -129,7 +129,7 @@ extension Router {
 extension Router {
     
     /// Register a view controller by its type and a route key.
-    public func register(_ pageClass: Routable.Type, forKey key: Route.Key) {
+    public func register(_ pageClass: any Routable.Type, forKey key: Route.Key) {
         let id = key.id(with: host)
         assert(routableMap[id] == nil, "\(id) has been registered.")
         assert(actionMap[id] == nil, "\(id) page conflict with an action.")
@@ -137,7 +137,7 @@ extension Router {
     }
     
     /// Register view controllers by their types and route keys.
-    public func registerPageClasses(with dict: [Route.Key: Routable.Type]) {
+    public func registerPageClasses(with dict: [Route.Key: any Routable.Type]) {
         dict.forEach {
             let id = $0.id(with: host)
             assert(routableMap[id] == nil, "\(id) has been registered.")
@@ -159,7 +159,7 @@ extension Router {
                 assert(false, "\($1) class not found. Do NOT forget to add module name as a prefix when using Swift, such as `MuduleA.UserViewController")
                 return
             }
-            guard let routableClass = pageClass as? Routable.Type else {
+            guard let routableClass = pageClass as? any Routable.Type else {
                 assert(false, "\($1) class does not conform to Routable.")
                 return
             }
@@ -201,9 +201,9 @@ extension Router {
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url, userInfo: userInfo)
         guard let routable = routableMap[param.routeID],
-              let routableViewController = routable.init(param: param)
+              let routableViewController = routable.make(with: param)
         else { return nil }
-        return routableViewController as UIViewController
+        return routableViewController
     }
     
     public func viewController(for key: Route.Key, userInfo: [String: Any] = [:]) -> UIViewController? {
@@ -294,7 +294,9 @@ extension Router {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return open(redirectURL, userInfo: userInfo, completion: completion)
             }
-            guard let routableViewController = routable.init(param: param) else {
+            guard let viewController = routable.make(with: param),
+                  let routableViewController = viewController as? (any Routable)
+            else {
                 assert(false, "Init \(routable) failed.")
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
                 completion?(false)
@@ -375,16 +377,15 @@ extension Router {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return push(redirectURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor, completion: completion)
             }
-            guard let routableViewController = routable.init(param: param) else {
+            guard let routableViewController = routable.make(with: param) else {
                 assert(false, "Init \(routable) failed.")
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
                 completion?(false)
                 return false
             }
-            let viewController = routableViewController as UIViewController
             sendWillOpenNotification(with: param)
             let result = _push(
-                viewController: viewController,
+                viewController: routableViewController,
                 animated: param.animated ?? animated,
                 param: param,
                 transitionExecutor: transitionExecutor,
@@ -482,13 +483,13 @@ extension Router {
                     completion: completion
                 )
             }
-            guard let routableViewController = routable.init(param: param) else {
+            guard let routableViewController = routable.make(with: param) else {
                 assert(false, "Init \(routable) failed.")
                 defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
                 completion?(false)
                 return false
             }
-            var toController = routableViewController as UIViewController
+            var toController = routableViewController
             if let navigationControllerClass = navigationControllerClass,
                !(toController is UINavigationController) {
                 toController = navigationControllerClass.init(rootViewController: toController)
@@ -527,7 +528,7 @@ extension Router {
     
     /// Open a `Routable` view controller with the default open style.
     @discardableResult
-    public func open(routable: Routable, animated: Bool = true, completion: Route.Completion? = nil) -> Bool {
+    public func open(routable: any Routable, animated: Bool = true, completion: Route.Completion? = nil) -> Bool {
         let viewController = routable as UIViewController
         var result = false
         let openStyle = routable.preferredOpenStyle ?? self.preferredOpenStyle
@@ -851,7 +852,7 @@ extension Router {
             if parts.count == 2 {
                 let key = parts[0]
                 let vc = parts[1]
-                if let routableClass = NSClassFromString(vc) as? Routable.Type {
+                if let routableClass = NSClassFromString(vc) as? any Routable.Type {
                     Router.shared.register(routableClass, forKey: key.routeKey)
                 }
             } else {

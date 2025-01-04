@@ -63,8 +63,14 @@ public let AppRouter = Router.shared
 /// Reresent a UIViewController that can be routed by ReerRouter.
 public protocol Routable: UIViewController {
     
-    /// Initializer for the view controller, param will take the source url, query params and user info params.
-    init?(param: Route.Param)
+    associatedtype ViewControllerType: UIViewController = Self
+    
+    /// Creates and returns a view controller instance configured with the provided route parameters.
+    ///
+    /// - Parameter param: The route parameters containing navigation information.
+    /// - Returns: A configured view controller instance, or nil if creation fails.
+    static func make(with param: Route.Param) -> ViewControllerType?
+
     
     /// Implement this method if the view controller needs to redirect to another view controller under some conditions.
     static func redirectURLWithRouteParam(_ param: Route.Param) -> URL?
@@ -76,7 +82,6 @@ public protocol Routable: UIViewController {
 /// Make the protocol optional.
 public extension Routable {
     static func redirectURLWithRouteParam(_ param: Route.Param) -> URL? { return nil }
-
     var preferredOpenStyle: Route.OpenStyle? { return nil }
 }
 
