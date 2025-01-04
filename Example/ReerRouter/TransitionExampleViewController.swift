@@ -10,15 +10,20 @@ import ReerRouter
 
 class TransitionExampleViewController: UIViewController, Routable {
     
-    let name: String?
-
-    required init?(param: Route.Param) {
-        name = param.queryParams["name"]
+    let name: String
+    
+    init(name: String) {
+        self.name = name
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    static func make(with param: Route.Param) -> TransitionExampleViewController? {
+        guard let name = param.queryParams["name"] else { return nil }
+        return .init(name: name)
     }
     
     override func viewDidLoad() {

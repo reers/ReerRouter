@@ -16,9 +16,17 @@ final class UserViewController: UIViewController, Routable {
     
     var params: [String: Any]
     
-    init?(param: Route.Param) {
-        self.params = param.allParams
+    init(params: [String: Any]) {
+        self.params = params
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    static func make(with param: Route.Param) -> UserViewController? {
+        return .init(params: param.allParams)
     }
 
     var preferredOpenStyle: Route.OpenStyle? {
@@ -29,9 +37,6 @@ final class UserViewController: UIViewController, Routable {
     
     let tableView = UITableView()
     
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     
     // MARK: View Life Cycle

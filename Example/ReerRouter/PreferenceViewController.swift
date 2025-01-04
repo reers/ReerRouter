@@ -9,21 +9,17 @@ import UIKit
 import ReerRouter
 
 class PreferenceViewController: UIViewController, Routable {
-    
-    required init?(param: Route.Param) {
-        super.init(nibName: nil, bundle: nil)
+    static func make(with param: Route.Param) -> PreferenceViewController? {
+        return .init()
     }
     
-    class func redirectURLWithRouteParam(_ param: Route.Param) -> URL? {
+    static func redirectURLWithRouteParam(_ param: Route.Param) -> URL? {
         if let value = param.allParams["some_key"] as? String, value == "redirect" {
             return URL(string: "myapp://new_preference")
         }
         return nil
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -11,12 +11,8 @@ import ReerRouter
 @Routable("new_preference")
 class NewPreferenceViewController: UIViewController {
 
-    required init?(param: Route.Param) {
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    static func make(with param: Route.Param) -> NewPreferenceViewController? {
+        return .init()
     }
     
     override func viewDidLoad() {
