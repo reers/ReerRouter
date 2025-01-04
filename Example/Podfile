@@ -3,7 +3,7 @@ use_frameworks!
 platform :ios, '13.0'
 
 target 'ReerRouter_Example' do
-  pod 'ReerRouter', '2.1.0'
+  pod 'ReerRouter', :path => '../'
 
   target 'ReerRouter_Tests' do
     inherit! :search_paths
