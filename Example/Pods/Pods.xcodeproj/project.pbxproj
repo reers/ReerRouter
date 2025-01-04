@@ -66,8 +66,8 @@
 		8E7E3C2786E4359FDCAB72A2208FDD98 /* Macros.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Macros.swift; path = Sources/ReerRouter/Macros/Macros.swift; sourceTree = "<group>"; };
 		991B42F4BE482764AC8C22AF6F1454A2 /* Param.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Param.swift; path = Sources/ReerRouter/Param.swift; sourceTree = "<group>"; };
 		9B99D933488AAFCECECC7451FDC08DAF /* Pods-ReerRouter_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-ReerRouter_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		A1A8BBE4128890978E5D545283FE461A /* Pods-ReerRouter_Example */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-ReerRouter_Example"; path = Pods_ReerRouter_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; };
+		A1A8BBE4128890978E5D545283FE461A /* Pods_ReerRouter_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ReerRouter_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A42C49EAE6FA4F1133BAE0D2B9E286E5 /* Pods-ReerRouter_Tests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-ReerRouter_Tests-dummy.m"; sourceTree = "<group>"; };
 		A4F1AD597530606391B6CA2E3D6E3FA4 /* ReerRouter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = ReerRouter.debug.xcconfig; sourceTree = "<group>"; };
 		B1553775B37EDBB22DDC685F7F5FA93B /* ReerRouter-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "ReerRouter-dummy.m"; sourceTree = "<group>"; };
@@ -79,10 +79,10 @@
 		D867B8DF686DACCEFF10D454D95D6C72 /* Key.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Key.swift; path = Sources/ReerRouter/Key.swift; sourceTree = "<group>"; };
 		DFD7157681FE90B871D34930AEE99322 /* Pods-ReerRouter_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-ReerRouter_Example-frameworks.sh"; sourceTree = "<group>"; };
 		F2C97F0ED1AC37DB7F907B4D2C19FDD3 /* URLConvertible.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URLConvertible.swift; path = Sources/ReerRouter/URLConvertible.swift; sourceTree = "<group>"; };
-		F2EBE5E35D9AEA7E86712363078A8F54 /* Pods-ReerRouter_Tests */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-ReerRouter_Tests"; path = Pods_ReerRouter_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2EBE5E35D9AEA7E86712363078A8F54 /* Pods_ReerRouter_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ReerRouter_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4310058BBF102D0691E231ADBBC098A /* ReerRouter-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "ReerRouter-Info.plist"; sourceTree = "<group>"; };
-		F72B2EC7EB9D3807A992F5D63A20042A /* ReerRouterMacros */ = {isa = PBXFileReference; includeInIndex = 1; name = ReerRouterMacros; path = Sources/Resources/ReerRouterMacros; sourceTree = "<group>"; };
-		FAEB19DA1AAC5224AAB0B8E8AD061D06 /* ReerRouter */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = ReerRouter; path = ReerRouter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F72B2EC7EB9D3807A992F5D63A20042A /* ReerRouterMacros */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.executable"; name = ReerRouterMacros; path = Sources/Resources/ReerRouterMacros; sourceTree = "<group>"; };
+		FAEB19DA1AAC5224AAB0B8E8AD061D06 /* ReerRouter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReerRouter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FDEA244EFF8330C07F2F88E04BA5EBB7 /* ReerRouter-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "ReerRouter-umbrella.h"; sourceTree = "<group>"; };
 		FF179E82646CDCCC2A9AF911AA3AE33E /* Pods-ReerRouter_Tests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-ReerRouter_Tests-umbrella.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -118,9 +118,9 @@
 		15CB1DAB720E59230642B0F934546120 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1A8BBE4128890978E5D545283FE461A /* Pods-ReerRouter_Example */,
-				F2EBE5E35D9AEA7E86712363078A8F54 /* Pods-ReerRouter_Tests */,
-				FAEB19DA1AAC5224AAB0B8E8AD061D06 /* ReerRouter */,
+				A1A8BBE4128890978E5D545283FE461A /* Pods_ReerRouter_Example.framework */,
+				F2EBE5E35D9AEA7E86712363078A8F54 /* Pods_ReerRouter_Tests.framework */,
+				FAEB19DA1AAC5224AAB0B8E8AD061D06 /* ReerRouter.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -148,7 +148,6 @@
 				F2C97F0ED1AC37DB7F907B4D2C19FDD3 /* URLConvertible.swift */,
 				B1BBCF281D0C5B6BBB5068ADDCF17F38 /* Support Files */,
 			);
-			name = ReerRouter;
 			path = ReerRouter;
 			sourceTree = "<group>";
 		};
@@ -282,7 +281,7 @@
 			);
 			name = ReerRouter;
 			productName = ReerRouter;
-			productReference = FAEB19DA1AAC5224AAB0B8E8AD061D06 /* ReerRouter */;
+			productReference = FAEB19DA1AAC5224AAB0B8E8AD061D06 /* ReerRouter.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		989097C785A9FA00146FF41CA9CC6FD6 /* Pods-ReerRouter_Tests */ = {
@@ -301,7 +300,7 @@
 			);
 			name = "Pods-ReerRouter_Tests";
 			productName = Pods_ReerRouter_Tests;
-			productReference = F2EBE5E35D9AEA7E86712363078A8F54 /* Pods-ReerRouter_Tests */;
+			productReference = F2EBE5E35D9AEA7E86712363078A8F54 /* Pods_ReerRouter_Tests.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		B7BE82C2C8F5AC27709DADDA393FF37D /* Pods-ReerRouter_Example */ = {
@@ -320,7 +319,7 @@
 			);
 			name = "Pods-ReerRouter_Example";
 			productName = Pods_ReerRouter_Example;
-			productReference = A1A8BBE4128890978E5D545283FE461A /* Pods-ReerRouter_Example */;
+			productReference = A1A8BBE4128890978E5D545283FE461A /* Pods_ReerRouter_Example.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -341,7 +340,6 @@
 				en,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
-			minimizedProjectReferenceProxies = 0;
 			productRefGroup = 15CB1DAB720E59230642B0F934546120 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -723,8 +721,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				SYMROOT = "${SRCROOT}/../build";
 			};
