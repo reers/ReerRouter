@@ -14,8 +14,8 @@ extension Route.Key {
 
 @Routable(.chat)
 class ChatViewController: UIViewController {
-    required init?(param: Route.Param) {
-        super.init(nibName: nil, bundle: nil)
+    static func make(with param: Route.Param) -> ChatViewController? {
+        return .init()
     }
 
     // ... other methods ...
@@ -23,8 +23,8 @@ class ChatViewController: UIViewController {
 
 @Routable("setting")
 class SettingViewController: UIViewController {
-    required init?(param: Route.Param) {
-        super.init(nibName: nil, bundle: nil)
+    static func make(with param: Route.Param) -> SettingViewController? {
+        return .init()
     }
 
     // ... other methods ...
@@ -219,8 +219,8 @@ extension Route.Key {
 
 @Routable(.chat)
 class ChatViewController: UIViewController {
-    required init?(param: Route.Param) {
-        super.init(nibName: nil, bundle: nil)
+    static func make(with param: Route.Param) -> ChatViewController? {
+        return .init()
     }
 
     // ... other methods ...
@@ -228,8 +228,8 @@ class ChatViewController: UIViewController {
 
 @Routable("setting")
 class SettingViewController: UIViewController {
-    required init?(param: Route.Param) {
-        super.init(nibName: nil, bundle: nil)
+    static func make(with param: Route.Param) -> SettingViewController? {
+        return .init()
     }
 
     // ... other methods ...
@@ -249,9 +249,17 @@ And now `Route.Key` means url path, then all the register methods are same as `M
 class UserViewController: UIViewController, Routable {
     var params: [String: Any]
     
-    required init?(param: Route.Param) {
-        self.params = param.allParams
+    init(params: [String: Any]) {
+        self.params = params
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    static func make(with param: Route.Param) -> UserViewController? {
+        return .init(params: param.allParams)
     }
 }   
 ```
@@ -323,9 +331,8 @@ Router.shared.open("myapp://unregisteredKey?route_fallback_url=myapp%3A%2F%2Fuse
 * Implement `redirectURLWithRouteParam(_:)` method to redirect to a new url for the view controller.
 ```
 class PreferenceViewController: UIViewController, Routable {
-    
-    required init?(param: Route.Param) {
-        super.init(nibName: nil, bundle: nil)
+    static func make(with param: Route.Param) -> PreferenceViewController? {
+        return .init()
     }
     
     class func redirectURLWithRouteParam(_ param: Route.Param) -> URL? {
