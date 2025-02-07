@@ -137,14 +137,25 @@ extension Route {
     public static let notificationUserInfoKey = "ReerRouterNotificationUserInfoKey"
 }
 
-public protocol RouterConfigable: Router {
-    static var host: String { get }
-    static var isAutoRegisterEnabled: Bool { get }
+/// Defines how and when routes(only viewControlers and actions marked by `@Routable`, `#route` macro)
+/// should be registered in the routing system
+public enum RegistrationMode {
+    /// Routes are automatically registered during app launch/cold start
+    case auto
+    /// Routes are registered on-demand when first accessed
+    case lazy
+    /// Routes are registered manually at a time determined by the developer. Invoke ``Router/registerRoutes()``.
+    case manual
 }
 
-extension RouterConfigable {
+public protocol RouterConfigable: Router {
+    static var host: String { get }
+    static var registrationMode: RegistrationMode { get }
+}
+
+public extension RouterConfigable {
     static var host: String { return "" }
-    static var isAutoRegisterEnabled: Bool { return true }
+    static var registrationMode: RegistrationMode { return .auto }
 }
 
 #endif
