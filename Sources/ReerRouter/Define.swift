@@ -144,13 +144,18 @@ public enum RegistrationMode {
     case auto
     /// Routes are registered on-demand when first accessed
     case lazy
-    /// Routes are registered manually at a time determined by the developer
+    /// Routes are registered manually at a time determined by the developer. Invoke ``Router/registerRoutes()``.
     case manual
 }
 
 public protocol RouterConfigable: Router {
     static var host: String { get }
     static var registrationMode: RegistrationMode { get }
+}
+
+extension RouterConfigable {
+    static var host: String { return "" }
+    static var registrationMode: RegistrationMode { return .auto }
 }
 
 #endif

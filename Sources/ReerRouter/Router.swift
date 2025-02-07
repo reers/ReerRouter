@@ -763,7 +763,7 @@ extension Router {
     
     /// Registers routes defined by macro.
     ///
-    /// - Note: This method is automatically called if `isAutoRegisterEnabled` is set to `true`.
+    /// - Note: This method is automatically called if `registrationMode` is set to `.auto`.
     ///         Otherwise, you need to call this method manually to register routes.
     ///
     /// - Important: Ensure this method is called before using any routes, unless auto-registration is enabled.
