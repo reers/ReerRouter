@@ -153,7 +153,7 @@ public protocol RouterConfigable: Router {
     static var registrationMode: RegistrationMode { get }
 }
 
-extension RouterConfigable {
+public extension RouterConfigable {
     static var host: String { return "" }
     static var registrationMode: RegistrationMode { return .auto }
 }
