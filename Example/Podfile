@@ -3,7 +3,7 @@ use_frameworks!
 platform :ios, '13.0'
 
 target 'ReerRouter_Example' do
-  pod 'ReerRouter', :path => '../'
+  pod 'ReerRouter', '2.2.1'
 
   target 'ReerRouter_Tests' do
     inherit! :search_paths
@@ -16,7 +16,7 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     rhea_dependency = target.dependencies.find { |d| ['ReerRouter'].include?(d.name) }
     if rhea_dependency
-      puts "Adding Rhea Swift flags to target: #{target.name}"
+      puts "Adding ReerRouter Swift flags to target: #{target.name}"
       target.build_configurations.each do |config|
         swift_flags = config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
         

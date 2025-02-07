@@ -1,16 +1,20 @@
 PODS:
-  - ReerRouter (2.1.0)
+  - ReerRouter (2.2.1):
+    - SectionReader
+  - SectionReader (1.0.0)
 
 DEPENDENCIES:
-  - ReerRouter (from `../`)
+  - ReerRouter (= 2.2.1)
 
-EXTERNAL SOURCES:
-  ReerRouter:
-    :path: "../"
+SPEC REPOS:
+  trunk:
+    - ReerRouter
+    - SectionReader
 
 SPEC CHECKSUMS:
-  ReerRouter: 59ac7db3ee8532b8b8ea2b1d67ccaeeff50befba
+  ReerRouter: 8b80594efa2a7c72ca742a6624f18dbcccf73bde
+  SectionReader: f32ea7de733e351df8442adbfc9136b36064b018
 
-PODFILE CHECKSUM: d3ad8cfc6516140810f9038ffd43186b37475776
+PODFILE CHECKSUM: eb82b289e3cf62a599b8057f5bf008dcfe7f90fe
 
 COCOAPODS: 1.16.2

@@ -1,8 +1,8 @@
 CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ReerRouter"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ReerRouter" "${PODS_CONFIGURATION_BUILD_DIR}/SectionReader"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ReerRouter/ReerRouter.framework/Headers"
-OTHER_LDFLAGS = $(inherited) -framework "ReerRouter"
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ReerRouter/ReerRouter.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/SectionReader/SectionReader.framework/Headers"
+OTHER_LDFLAGS = $(inherited) -framework "ReerRouter" -framework "SectionReader"
 OTHER_SWIFT_FLAGS = $(inherited) -enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
