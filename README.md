@@ -437,9 +437,7 @@ Router.shared.addInterceptor(forKey: .userPage) { (params) -> Bool in
 ```
 extension Router: RouterConfigable {
     // This configuration disables automatic retrieval
-    public static var isAutoRegisterEnabled: Bool {
-        return false
-    }
+    static var registrationMode: RegistrationMode { return .manual }
 }
 // Then call at an appropriate time
 Router.shared.registerRoutes()
