@@ -32,9 +32,13 @@ class SettingViewController: NSObject {
  
  or
  
-extension Router: RouterConfigable {
+extension Router: @retroactive RouterConfigable {
     public static var host: String {
         return "example.com"
+    }
+ 
+    public static var registrationMode: RegistrationMode {
+        return .lazy
     }
 }
 

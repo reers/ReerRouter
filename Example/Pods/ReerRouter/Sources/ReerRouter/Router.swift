@@ -39,6 +39,8 @@ open class Router {
     /// Global singleton instance.
     public static let shared = Router()
     
+    private init() {}
+    
     public var delegate: RouterDelegate?
     
     // User can setup these properties as the default.
@@ -49,10 +51,14 @@ open class Router {
     
     open var host: String = ""
     
-    private var actionMap: [Route.ID: Route.Action] = [:]
-    private var routableMap: [Route.ID: any Routable.Type] = [:]
+    private lazy var actionMap: [Route.ID: Route.Action] = [:]
+    
+    private lazy var routableMap: [Route.ID: any Routable.Type] = [:]
     
     private var interceptors: [Route.ID: [Route.Interception]] = [:]
+    
+    private var lazyRegistration = false
+    private var hasLoadedFromSection = false
 }
 
 // MARK: - Enable
@@ -67,6 +73,7 @@ extension Router {
         guard let url = url.urlValue else { return false }
         let param = Route.Param(url: url)
         guard isAllowedForScheme(param.scheme) else { return false }
+        Self.lazyLoadRegisterInfo()
         return actionMap[param.routeID] != nil || routableMap[param.routeID] != nil
     }
     
@@ -108,6 +115,7 @@ extension Router {
     @discardableResult
     public func executeAction(byKey key: Route.Key, userInfo: [String: Any] = [:], completion: Route.Completion? = nil) -> Bool {
         let id = key.id(with: host)
+        Self.lazyLoadRegisterInfo()
         guard let action = actionMap[id] else {
             completion?(false)
             return false
@@ -201,6 +209,7 @@ extension Router {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url, userInfo: userInfo)
+        Self.lazyLoadRegisterInfo()
         guard let routable = routableMap[param.routeID],
               let routableViewController = routable.make(with: param)
         else { return nil }
@@ -216,6 +225,7 @@ extension Router {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url)
+        Self.lazyLoadRegisterInfo()
         return actionMap[param.routeID]
     }
     
@@ -282,6 +292,7 @@ extension Router {
             completion?(false)
             return false
         }
+        Self.lazyLoadRegisterInfo()
         if let action = actionMap[param.routeID] {
             sendWillOpenNotification(with: param)
             action(param)
@@ -374,6 +385,7 @@ extension Router {
             completion?(false)
             return false
         }
+        Self.lazyLoadRegisterInfo()
         if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return push(redirectURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor, completion: completion)
@@ -473,6 +485,7 @@ extension Router {
             completion?(false)
             return false
         }
+        Self.lazyLoadRegisterInfo()
         if let routable = routableMap[param.routeID] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return present(
@@ -728,8 +741,13 @@ extension Router {
     @objc
     public static func router_load() {
         if let configable = self as? RouterConfigable.Type {
-            if configable.isAutoRegisterEnabled {
+            switch configable.registrationMode {
+            case .auto:
                 Router.shared.registerRoutes()
+            case .lazy:
+                Router.shared.lazyRegistration = true
+            case .manual:
+                break
             }
             Router.shared.host = configable.host
         } else {
@@ -743,7 +761,7 @@ extension Router {
     
     /// Registers routes defined by macro.
     ///
-    /// - Note: This method is automatically called if `isAutoRegisterEnabled` is set to `true`.
+    /// - Note: This method is automatically called if `registrationMode` is set to `.auto`.
     ///         Otherwise, you need to call this method manually to register routes.
     ///
     /// - Important: Ensure this method is called before using any routes, unless auto-registration is enabled.
@@ -752,8 +770,16 @@ extension Router {
     }
     
     private static func readSectionDatas() {
+        if Router.shared.hasLoadedFromSection { return }
         readViewControllers()
         readActions()
+        Router.shared.hasLoadedFromSection = true
+    }
+    
+    private static func lazyLoadRegisterInfo() {
+        if !Router.shared.hasLoadedFromSection && Router.shared.lazyRegistration {
+            readSectionDatas()
+        }
     }
     
     private static func readActions() {

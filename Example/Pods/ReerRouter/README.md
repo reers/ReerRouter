@@ -117,7 +117,7 @@ let package = Package(
         .library(name: "APackageDependOnReerRouter", targets: ["APackageDependOnReerRouter"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.2.1")
+        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.2.3")
     ],
     targets: [
         .target(
@@ -437,9 +437,7 @@ Router.shared.addInterceptor(forKey: .userPage) { (params) -> Bool in
 ```
 extension Router: RouterConfigable {
     // This configuration disables automatic retrieval
-    public static var isAutoRegisterEnabled: Bool {
-        return false
-    }
+    public static var registrationMode: RegistrationMode { return .manual }
 }
 // Then call at an appropriate time
 Router.shared.registerRoutes()
