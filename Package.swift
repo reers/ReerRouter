@@ -18,6 +18,7 @@ let package = Package(
     dependencies: [
         // Depend on the latest Swift 5.9 prerelease of SwiftSyntax
         .package(url: "https://github.com/apple/swift-syntax.git", from: "600.0.0"),
+        .package(url: "https://github.com/reers/SectionReader.git", from: "1.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -32,7 +33,7 @@ let package = Package(
         ),
         .target(
             name: "ReerRouter",
-            dependencies: ["RouterLauncher", "ReerRouterMacros"],
+            dependencies: ["RouterLauncher", "ReerRouterMacros", "SectionReader"],
             path: "Sources/ReerRouter",
             swiftSettings: [.enableExperimentalFeature("SymbolLinkageMarkers")]
         ),

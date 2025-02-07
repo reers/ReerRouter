@@ -1,6 +1,15 @@
 {
-  "originHash" : "e4d4f116dfea5442cc199af4d36e5ae7e1df63ae52c2e5ed8dff7a4b45b16499",
+  "originHash" : "80eb983616b0dde5fefd092bc0412a4f61b2ae90653282e42a999aed5dfbb70e",
   "pins" : [
+    {
+      "identity" : "sectionreader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reers/SectionReader.git",
+      "state" : {
+        "revision" : "aa5fd9a6a60ed533d41dc8836713c3775a19e4e0",
+        "version" : "1.0.0"
+      }
+    },
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
