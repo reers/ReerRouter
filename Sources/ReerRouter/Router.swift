@@ -39,6 +39,8 @@ open class Router {
     /// Global singleton instance.
     public static let shared = Router()
     
+    private init() {}
+    
     public var delegate: RouterDelegate?
     
     // User can setup these properties as the default.
@@ -49,10 +51,23 @@ open class Router {
     
     open var host: String = ""
     
-    private var actionMap: [Route.ID: Route.Action] = [:]
-    private var routableMap: [Route.ID: any Routable.Type] = [:]
+    private lazy var actionMap: [Route.ID: Route.Action] = {
+        if lazyRegistration {
+            Self.readActions()
+        }
+        return [:]
+    }()
+    
+    private lazy var routableMap: [Route.ID: any Routable.Type] = {
+        if lazyRegistration {
+            Self.readViewControllers()
+        }
+        return [:]
+    }()
     
     private var interceptors: [Route.ID: [Route.Interception]] = [:]
+    
+    private var lazyRegistration = false
 }
 
 // MARK: - Enable
@@ -728,8 +743,13 @@ extension Router {
     @objc
     public static func router_load() {
         if let configable = self as? RouterConfigable.Type {
-            if configable.isAutoRegisterEnabled {
+            switch configable.registrationMode {
+            case .auto:
                 Router.shared.registerRoutes()
+            case .lazy:
+                Router.shared.lazyRegistration = true
+            case .manual:
+                break
             }
             Router.shared.host = configable.host
         } else {
