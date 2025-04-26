@@ -35,7 +35,7 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
                 }
             case "action":
                 if let closureExpr = argument.expression.as(ClosureExprSyntax.self) {
-                    functionBody = closureExpr.statements.description.trimmingCharacters(in: .whitespacesAndNewlines)
+                    functionBody = closureExpr.statements.trimmedDescription
                     if let sig = closureExpr.signature {
                         signature = sig.description
                     }
