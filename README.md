@@ -1,5 +1,7 @@
 [中文文档](https://github.com/reers/ReerRouter/wiki/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/reers/ReerRouter)
+
 # ReerRouter
 App URL router for iOS (Swift only). Inspired by [URLNavigator](https://github.com/devxoul/URLNavigator).
 
