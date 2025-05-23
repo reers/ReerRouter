@@ -23,16 +23,15 @@ Pod::Spec.new do |s|
   s.swift_versions = '5.10'
   s.ios.deployment_target = '13.0'
 
-  s.source_files = 'Sources/**/*'
-  s.preserve_paths = ["Sources/Resources/ReerRouterMacros"]
+  s.source_files = 'Sources/**/*', 'MacroPlugin/ReerRouterMacros'
   s.exclude_files = 'Sources/ReerRouterMacros'
   
   s.pod_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
   
   s.user_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/Sources/Resources/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
   
   s.dependency 'SectionReader'
