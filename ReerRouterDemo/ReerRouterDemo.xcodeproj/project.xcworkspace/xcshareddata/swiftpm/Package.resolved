@@ -1,0 +1,24 @@
+{
+  "originHash" : "bc3bc28cec99216d566029de813551a97bc706e5f2c1d1bab592815e0f2a6470",
+  "pins" : [
+    {
+      "identity" : "sectionreader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reers/SectionReader.git",
+      "state" : {
+        "revision" : "aa5fd9a6a60ed533d41dc8836713c3775a19e4e0",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}
