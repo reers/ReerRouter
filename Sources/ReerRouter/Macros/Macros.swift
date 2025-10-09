@@ -90,6 +90,6 @@ public macro route(
 /// ```
 ///
 /// - SeeAlso: `Routable` protocol, `Route.Key`
-@attached(extension, conformances: Routable, names: arbitrary)
+@attached(extension, conformances: Routable, names: named(routableRegistration))
 public macro Routable(_ key: Route.Key) = #externalMacro(module: "ReerRouterMacros", type: "WriteRouteVCToSectionMacro")
 #endif
