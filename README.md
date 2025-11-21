@@ -82,8 +82,8 @@ Alternatively, if s.pod_target_xcconfig is not used, you can add the following s
 ```
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    rhea_dependency = target.dependencies.find { |d| ['ReerRouter'].include?(d.name) }
-    if rhea_dependency
+    reerrouter_dependency = target.dependencies.find { |d| ['ReerRouter'].include?(d.name) }
+    if reerrouter_dependency
       puts "Adding Rhea Swift flags to target: #{target.name}"
       target.build_configurations.each do |config|
         swift_flags = config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
@@ -106,8 +106,11 @@ post_install do |installer|
     end
   end
 end
-
 ```
+
+<p><strong>⚠️ Important:</strong> If you encounter <code>rsync</code> permission errors with Xcode 14+, disable User Script Sandboxing:</p>
+<p>In your project's <strong>Build Settings</strong>, search for <code>User Script Sandboxing</code> and set <code>ENABLE_USER_SCRIPT_SANDBOXING</code> to <code>No</code>. This resolves CocoaPods script execution issues caused by Xcode's stricter sandbox restrictions.</p>
+
 ### Swift Package Manager
 For packages that need to depend on ReerRouter, it's necessary to enable the Swift experimental feature:
 ```
