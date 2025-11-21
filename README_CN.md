@@ -80,8 +80,8 @@ s.pod_target_xcconfig = {
 ```
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    rhea_dependency = target.dependencies.find { |d| ['ReerRouter'].include?(d.name) }
-    if rhea_dependency
+    reerrouter_dependency = target.dependencies.find { |d| ['ReerRouter'].include?(d.name) }
+    if reerrouter_dependency
       puts "Adding Rhea Swift flags to target: #{target.name}"
       target.build_configurations.each do |config|
         swift_flags = config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
@@ -105,6 +105,10 @@ post_install do |installer|
   end
 end
 ```
+
+<p><strong>⚠️ 重要提示：</strong>若在 Xcode 14+ 遇到 <code>rsync</code> 权限错误，需关闭用户脚本沙盒：</p>
+<p>在工程的 <strong>Build Settings</strong> 中搜索 <code>User Script Sandboxing</code>，将 <code>ENABLE_USER_SCRIPT_SANDBOXING</code> 设为 <code>No</code>。这可解决 Xcode 严格沙盒限制导致的 CocoaPods 脚本执行失败问题。</p>
+
 
 ### Swift Package Manager
 对于要依赖 ReerRouter 的 package, 需要开启 swift 实验 feature
