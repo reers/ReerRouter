@@ -122,7 +122,7 @@ let package = Package(
         .library(name: "APackageDependOnReerRouter", targets: ["APackageDependOnReerRouter"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.2.7")
+        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.2.8")
     ],
     targets: [
         .target(
