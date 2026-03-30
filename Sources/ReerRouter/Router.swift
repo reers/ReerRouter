@@ -51,14 +51,30 @@ open class Router {
     
     open var host: String = ""
     
-    private lazy var actionMap: [Route.ID: Route.Action] = [:]
+    private lazy var actionMap: [UInt64: Route.Action] = [:]
     
-    private lazy var routableMap: [Route.ID: any Routable.Type] = [:]
+    private lazy var routableMap: [UInt64: any Routable.Type] = [:]
     
-    private var interceptors: [Route.ID: [Route.Interception]] = [:]
+    private var interceptors: [UInt64: [Route.Interception]] = [:]
     
     private var lazyRegistration = false
     private var hasLoadedFromSection = false
+    
+    private func routeHash(for key: Route.Key) -> UInt64 {
+        return routerFNV1aHash(key.rawValue)
+    }
+    
+    private func routeHash(for url: URL) -> UInt64 {
+        if host.isEmpty {
+            return routerFNV1aHash((url.host ?? "") + url.path)
+        } else {
+            let path = url.path
+            if path.hasPrefix("/") {
+                return routerFNV1aHash(String(path.dropFirst()))
+            }
+            return routerFNV1aHash(path)
+        }
+    }
 }
 
 // MARK: - Enable
@@ -74,7 +90,8 @@ extension Router {
         let param = Route.Param(url: url)
         guard isAllowedForScheme(param.scheme) else { return false }
         Self.lazyLoadRegisterInfo()
-        return actionMap[param.routeID] != nil || routableMap[param.routeID] != nil
+        let hash = routeHash(for: url)
+        return actionMap[hash] != nil || routableMap[hash] != nil
     }
     
     private func isAllowedForScheme(_ scheme: String?) -> Bool {
@@ -97,14 +114,14 @@ extension Router {
     ///         print("action executed.")
     ///     }
     public func registerAction(with key: Route.Key, _ action: @escaping Route.Action) {
-        let id = key.id(with: host)
-        assert(actionMap[id] == nil, "\(id) action has been registered.")
-        assert(routableMap[id] == nil, "\(id) action conflict with a page.")
-        actionMap[id] = action
+        let hash = routeHash(for: key)
+        assert(actionMap[hash] == nil, "\(key.rawValue) action has been registered.")
+        assert(routableMap[hash] == nil, "\(key.rawValue) action conflict with a page.")
+        actionMap[hash] = action
     }
     
     public func unregisterAction(with key: Route.Key) {
-        actionMap.removeValue(forKey: key.id(with: host))
+        actionMap.removeValue(forKey: routeHash(for: key))
     }
     
     /// Execute an action by a route key.
@@ -114,14 +131,14 @@ extension Router {
     ///     AppRouter.open("myapp://some_action")
     @discardableResult
     public func executeAction(byKey key: Route.Key, userInfo: [String: Any] = [:], completion: Route.Completion? = nil) -> Bool {
-        let id = key.id(with: host)
+        let hash = routeHash(for: key)
         Self.lazyLoadRegisterInfo()
-        guard let action = actionMap[id] else {
+        guard let action = actionMap[hash] else {
             completion?(false)
             return false
         }
         guard let url = key.url(with: host) else {
-            assert(false, "Generate url failed for \(id)")
+            assert(false, "Generate url failed for \(key.rawValue)")
             completion?(false)
             return false
         }
@@ -139,19 +156,19 @@ extension Router {
     
     /// Register a view controller by its type and a route key.
     public func register(_ pageClass: any Routable.Type, forKey key: Route.Key) {
-        let id = key.id(with: host)
-        assert(routableMap[id] == nil, "\(id) has been registered.")
-        assert(actionMap[id] == nil, "\(id) page conflict with an action.")
-        routableMap[id] = pageClass
+        let hash = routeHash(for: key)
+        assert(routableMap[hash] == nil, "\(key.rawValue) has been registered.")
+        assert(actionMap[hash] == nil, "\(key.rawValue) page conflict with an action.")
+        routableMap[hash] = pageClass
     }
     
     /// Register view controllers by their types and route keys.
     public func registerPageClasses(with dict: [Route.Key: any Routable.Type]) {
         dict.forEach {
-            let id = $0.id(with: host)
-            assert(routableMap[id] == nil, "\(id) has been registered.")
-            assert(actionMap[id] == nil, "\(id) page conflict with an action.")
-            routableMap[id] = $1
+            let hash = routeHash(for: $0)
+            assert(routableMap[hash] == nil, "\($0.rawValue) has been registered.")
+            assert(actionMap[hash] == nil, "\($0.rawValue) page conflict with an action.")
+            routableMap[hash] = $1
         }
     }
     
@@ -161,9 +178,9 @@ extension Router {
     ///     Router.shared.registerPageClasses(with: ["preference": "ReerRouter.PreferenceViewController"])
     public func registerPageClasses(with dict: [Route.Key: UIViewControllerClassName]) {
         dict.forEach {
-            let id = $0.id(with: host)
-            assert(routableMap[id] == nil, "\(id) has been registered.")
-            assert(actionMap[id] == nil, "\(id) page conflict with an action.")
+            let hash = routeHash(for: $0)
+            assert(routableMap[hash] == nil, "\($0.rawValue) has been registered.")
+            assert(actionMap[hash] == nil, "\($0.rawValue) page conflict with an action.")
             guard let pageClass = NSClassFromString($1) else {
                 assert(false, "\($1) class not found. Do NOT forget to add module name as a prefix when using Swift, such as `MuduleA.UserViewController")
                 return
@@ -172,12 +189,12 @@ extension Router {
                 assert(false, "\($1) class does not conform to Routable.")
                 return
             }
-            routableMap[id] = routableClass
+            routableMap[hash] = routableClass
         }
     }
     
     public func unregister(forKey key: Route.Key) {
-        routableMap.removeValue(forKey: key.id(with: host))
+        routableMap.removeValue(forKey: routeHash(for: key))
     }
 }
 
@@ -189,14 +206,14 @@ extension Router {
     /// Add a interception block for a certain route.
     /// Return false for the block means you want to stop routing for the url.
     public func addInterceptor(forKey key: Route.Key, interception: @escaping Route.Interception) {
-        let id = key.id(with: host)
-        var interceptions = interceptors[id] ?? []
+        let hash = routeHash(for: key)
+        var interceptions = interceptors[hash] ?? []
         interceptions.append(interception)
-        interceptors[id] = interceptions
+        interceptors[hash] = interceptions
     }
     
     public func removeInterceptor(forKey key: Route.Key) {
-        interceptors.removeValue(forKey: key.id(with: host))
+        interceptors.removeValue(forKey: routeHash(for: key))
     }
 }
 
@@ -210,7 +227,8 @@ extension Router {
         if !canOpenURL(url) { return nil }
         let param = Route.Param(url: url, userInfo: userInfo)
         Self.lazyLoadRegisterInfo()
-        guard let routable = routableMap[param.routeID],
+        let hash = routeHash(for: url)
+        guard let routable = routableMap[hash],
               let routableViewController = routable.make(with: param)
         else { return nil }
         return routableViewController
@@ -224,9 +242,9 @@ extension Router {
     public func action(for url: URLConvertible) -> Route.Action? {
         guard let url = url.urlValue else { return nil }
         if !canOpenURL(url) { return nil }
-        let param = Route.Param(url: url)
         Self.lazyLoadRegisterInfo()
-        return actionMap[param.routeID]
+        let hash = routeHash(for: url)
+        return actionMap[hash]
     }
     
     public func action(for key: Route.Key) -> Route.Action? {
@@ -287,13 +305,14 @@ extension Router {
             }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
-        if let interceptions = interceptors[param.routeID], !interceptions.reduce(true, { $0 && $1(param) }) {
+        let hash = routeHash(for: url)
+        if let interceptions = interceptors[hash], !interceptions.reduce(true, { $0 && $1(param) }) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             completion?(false)
             return false
         }
         Self.lazyLoadRegisterInfo()
-        if let action = actionMap[param.routeID] {
+        if let action = actionMap[hash] {
             sendWillOpenNotification(with: param)
             action(param)
             defer {
@@ -302,7 +321,7 @@ extension Router {
             }
             completion?(true)
             return true
-        } else if let routable = routableMap[param.routeID] {
+        } else if let routable = routableMap[hash] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return open(redirectURL, userInfo: userInfo, completion: completion)
             }
@@ -380,13 +399,14 @@ extension Router {
             }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
-        if let interceptions = interceptors[param.routeID], !interceptions.reduce(true, { $0 && $1(param) }) {
+        let hash = routeHash(for: url)
+        if let interceptions = interceptors[hash], !interceptions.reduce(true, { $0 && $1(param) }) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             completion?(false)
             return false
         }
         Self.lazyLoadRegisterInfo()
-        if let routable = routableMap[param.routeID] {
+        if let routable = routableMap[hash] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return push(redirectURL, userInfo: userInfo, animated: animated, transitionExecutor: transitionExecutor, completion: completion)
             }
@@ -480,13 +500,14 @@ extension Router {
             }
         }
         let param = Route.Param(url: url, userInfo: userInfo)
-        if let interceptions = interceptors[param.routeID], !interceptions.reduce(true, { $0 && $1(param) }) {
+        let hash = routeHash(for: url)
+        if let interceptions = interceptors[hash], !interceptions.reduce(true, { $0 && $1(param) }) {
             defer { tellDelegateResult(false, forURL: url, userInfo: userInfo) }
             completion?(false)
             return false
         }
         Self.lazyLoadRegisterInfo()
-        if let routable = routableMap[param.routeID] {
+        if let routable = routableMap[hash] {
             if let redirectURL = routable.redirectURLWithRouteParam(param) {
                 return present(
                     redirectURL,
@@ -785,24 +806,20 @@ extension Router {
     private static func readActions() {
         let actions = SectionReader.read(RouteActionInfo.self, segment: segmentName, section: actionSectionName)
         for info in actions {
-            let string = info.0.description
+            let keyHash = info.0
             let function = info.1
-            Router.shared.registerAction(with: string.routeKey, function)
+            Router.shared.actionMap[keyHash] = function
         }
     }
     
     private static func readViewControllers() {
-        let vcStrings = SectionReader.read(StaticString.self, segment: segmentName, section: vcSectionName)
-        for info in vcStrings {
-            let parts = info.description.components(separatedBy: ":")
-            if parts.count == 2 {
-                let key = parts[0]
-                let vc = parts[1]
-                if let routableClass = NSClassFromString(vc) as? any Routable.Type {
-                    Router.shared.register(routableClass, forKey: key.routeKey)
-                }
-            } else {
-                assert(false, "Register controller should have 2 parts")
+        let vcInfos = SectionReader.read(RouteVCInfo.self, segment: segmentName, section: vcSectionName)
+        for info in vcInfos {
+            let keyHash = info.0
+            let classProvider = info.1
+            let cls: AnyClass = classProvider()
+            if let routableClass = cls as? any Routable.Type {
+                Router.shared.routableMap[keyHash] = routableClass
             }
         }
     }

@@ -10,6 +10,21 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
+private func fnv1aHash(_ string: String) -> UInt64 {
+    var hash: UInt64 = 0xcbf29ce484222325
+    for byte in string.utf8 {
+        hash ^= UInt64(byte)
+        hash &*= 0x100000001b3
+    }
+    return hash
+}
+
+private func fnv1aHashLiteral(_ string: String) -> String {
+    let hash = fnv1aHash(string)
+    let hex = String(hash, radix: 16)
+    return "0x" + String(repeating: "0", count: max(0, 16 - hex.count)) + hex
+}
+
 public struct WriteRouteActionToSectionMacro: DeclarationMacro {
     
     public static func expansion(
@@ -47,12 +62,13 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
         let isGlobal = context.lexicalContext.isEmpty
         let staticString = isGlobal ? "" : "static "
         let infoName = "\(context.makeUniqueName("rhea"))"
+        let hashLiteral = fnv1aHashLiteral(key)
         
         let declarationString = """
             @_used 
             @_section("__DATA,__rerouter_ac")
             \(staticString)let \(infoName): RouteActionInfo = (
-                "\(key)",
+                \(hashLiteral),
                 { \(signature ?? "param in")
                     \(functionBody)
                 }
@@ -100,21 +116,16 @@ public struct WriteRouteVCToSectionMacro: ExtensionMacro {
         }
         
         let className = classDecl.name.text
-        let objcClassName = getObjcClassName(from: classDecl)
-        let moduleName = try getModuleName(for: classDecl, in: context)
-        
-        let realClassName: String
-        if let objcName = objcClassName {
-            realClassName = objcName
-        } else {
-            realClassName = "\(moduleName).\(className)"
-        }
+        let hashLiteral = fnv1aHashLiteral(routeKey)
         
         let extensionDecl: DeclSyntax = """
             extension \(raw: className): Routable {
                 @_used
                 @_section("__DATA,__rerouter_vc")
-                private static let routableRegistration: StaticString = "\(raw: routeKey):\(raw: realClassName)"
+                private static let routableRegistration: RouteVCInfo = (
+                    \(raw: hashLiteral),
+                    { \(raw: className).self }
+                )
             }
             """
         
