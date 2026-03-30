@@ -14,7 +14,19 @@ import UIKit
 public enum Route {}
 
 
-public typealias RouteActionInfo = (StaticString, Route.Action)
+public typealias RouteActionInfo = (UInt64, Route.Action)
+
+public typealias RouteVCProvider = @convention(c) () -> AnyClass
+public typealias RouteVCInfo = (UInt64, RouteVCProvider)
+
+public func routerFNV1aHash(_ string: String) -> UInt64 {
+    var hash: UInt64 = 0xcbf29ce484222325
+    for byte in string.utf8 {
+        hash ^= UInt64(byte)
+        hash &*= 0x100000001b3
+    }
+    return hash
+}
 
 extension Route {
     
