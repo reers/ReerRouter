@@ -59,7 +59,7 @@ extension Route {
     
     public typealias Action = @convention(c) (_ params: Route.Param) -> Void
     
-    public typealias Completion = (_ success: Bool) -> Void
+    public typealias Completion = @Sendable (_ success: Bool) -> Void
     
     public typealias Interception = (_ params: Route.Param) -> Bool
 }
@@ -67,7 +67,7 @@ extension Route {
 public typealias UIViewControllerClassName = String
 
 /// Global instance of the Router.
-public let AppRouter = Router.shared
+nonisolated(unsafe) public let AppRouter = Router.shared
 
 
 // MARK: - Routable

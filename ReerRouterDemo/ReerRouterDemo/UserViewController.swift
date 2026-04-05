@@ -9,7 +9,7 @@ import UIKit
 import ReerRouter
 
 extension Route.Key {
-    static let userPage: Self = "user"
+    nonisolated(unsafe) static let userPage: Self = "user"
 }
 
 final class UserViewController: UIViewController, Routable {

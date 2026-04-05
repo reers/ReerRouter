@@ -38,7 +38,6 @@ let package = Package(
             swiftSettings: []
         ),
         .target(name: "RouterLauncher")
-    ],
-    swiftLanguageModes: [.v5]
+    ]
 )
 
