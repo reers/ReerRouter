@@ -65,8 +65,8 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
         let hashLiteral = fnv1aHashLiteral(key)
         
         let declarationString = """
-            @_used 
-            @_section("__DATA,__rerouter_ac")
+            @used 
+            @section("__DATA,__rerouter_ac")
             \(staticString)let \(infoName): RouteActionInfo = (
                 \(hashLiteral),
                 { \(signature ?? "param in")
@@ -120,8 +120,8 @@ public struct WriteRouteVCToSectionMacro: ExtensionMacro {
         
         let extensionDecl: DeclSyntax = """
             extension \(raw: className): Routable {
-                @_used
-                @_section("__DATA,__rerouter_vc")
+                @used
+                @section("__DATA,__rerouter_vc")
                 private static let routableRegistration: RouteVCInfo = (
                     \(raw: hashLiteral),
                     { \(raw: className).self }
