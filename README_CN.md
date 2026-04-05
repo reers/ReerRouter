@@ -3,7 +3,7 @@
 # ReerRouter
 适用于iOS的应用程序URL路由器（仅限Swift）。受到[URLNavigator](https://github.com/devxoul/URLNavigator)的启发。
 
-Swift 5.10 之后, 支持了@_used @_section 可以将数据写入 section, 再结合 Swift Macro, 就可以实现 OC 时代各种解耦和的, 用于注册信息的能力了. 本框架也支持了以这种方式注册路由
+利用 `@used` 和 `@section`（Swift 6.3 起正式支持）可以将数据写入 Mach-O section, 再结合 Swift Macro, 就可以实现 OC 时代各种解耦和的, 用于注册信息的能力了. 本框架也支持了以这种方式注册路由
 
 注册 UIViewController
 ```
@@ -43,19 +43,19 @@ struct Foo {
     })
 }
 ```
-🟡 目前 @_used @_section 这个能力还是 Swift 的实验 Feature, 需要通过配置项开启, 详见接入文档.
+
 
 ## 示例应用程序
 要运行该示例项目，请克隆 repo，并首先在 Example 目录中运行 `pod install`。
 
 ## 要求
-XCode 16.0 +
+Xcode 26.4 + (Swift 6.3+)
+
+> 对于旧版 Xcode (16.0-26.3)，请使用 [2.2.8](https://github.com/reers/ReerRouter/releases/tag/2.2.8) 版本，该版本使用实验性的 `@_section` 和 `@_used` 属性。
 
 iOS 13 +
 
-Swift 5.10
-
-swift-syntax 600.0.0
+swift-syntax 601.0.1+
 
 ## 安装
 
@@ -69,11 +69,11 @@ pod 'ReerRouter'
 由于 CocoaPods 不支持直接使用 Swift Macro, 可以将宏实现编译为二进制提供使用, 接入方式如下, 需要在依赖路由的组件设置`s.pod_target_xcconfig`来加载宏实现的二进制插件:
 ```
 s.pod_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
   
   s.user_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
 ```
 或者, 如果不使用`s.pod_target_xcconfig`, 也可以在 podfile 中添加如下脚本统一处理:
@@ -92,11 +92,7 @@ post_install do |installer|
           swift_flags.concat(plugin_flag.split)
         end
 
-        # 添加 SymbolLinkageMarkers 实验性特性标志
-        symbol_linkage_flag = '-enable-experimental-feature SymbolLinkageMarkers'
 
-        unless swift_flags.join(' ').include?(symbol_linkage_flag)
-          swift_flags.concat(symbol_linkage_flag.split)
         end
 
         config.build_settings['OTHER_SWIFT_FLAGS'] = swift_flags
@@ -111,7 +107,6 @@ end
 
 
 ### Swift Package Manager
-对于要依赖 ReerRouter 的 package, 需要开启 swift 实验 feature
 ```
 // Package.swift
 let package = Package(
@@ -121,24 +116,18 @@ let package = Package(
         .library(name: "APackageDependOnReerRouter", targets: ["APackageDependOnReerRouter"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.2.8")
+        .package(url: "https://github.com/reers/ReerRouter.git", from: "3.0.0")
     ],
     targets: [
         .target(
             name: "APackageDependOnReerRouter",
             dependencies: [
                 .product(name: "ReerRouter", package: "ReerRouter")
-            ],
-            // 此处添加开启实验 feature
-            swiftSettings:[.enableExperimentalFeature("SymbolLinkageMarkers")]
+            ]
         ),
     ]
 )
 ```
-
-在主App Target中 Build Settings设置开启实验feature:
--enable-experimental-feature SymbolLinkageMarkers
-![CleanShot 2024-10-12 at 20 39 59@2x](https://github.com/user-attachments/assets/6a15fd27-61cf-4d55-974e-8f6006577527)
 
 
 ## 开始使用
