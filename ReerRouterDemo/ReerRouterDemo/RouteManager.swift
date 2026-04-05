@@ -51,7 +51,7 @@ extension Router: @retroactive RouterConfigable {
 })
 
 final class RouteManager {
-    static let `default` = RouteManager()
+    nonisolated(unsafe) static let `default` = RouteManager()
     private init() {}
     
     var rootNavigationController: UINavigationController?

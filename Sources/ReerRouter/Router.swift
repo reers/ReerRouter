@@ -37,7 +37,7 @@ import SectionReader
 ///
 open class Router {
     /// Global singleton instance.
-    public static let shared = Router()
+    nonisolated(unsafe) public static let shared = Router()
     
     private init() {}
     
