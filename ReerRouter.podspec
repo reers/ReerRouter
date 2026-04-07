@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ReerRouter'
-  s.version          = '2.2.8'
+  s.version          = '2.3.0'
   s.summary          = 'A router for iOS app.'
 
   s.description      = <<-DESC
