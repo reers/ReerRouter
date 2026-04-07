@@ -5,7 +5,7 @@
 # ReerRouter
 App URL router for iOS (Swift only). Inspired by [URLNavigator](https://github.com/devxoul/URLNavigator).
 
-Swift 5.10 and later support @_used and @_section, allowing data to be written into sections. Combined with Swift Macros, this enables capabilities similar to various decoupling and registration information methods from the Objective-C era. This framework also supports registering routes in this manner.
+With the support of `@used` and `@section` (stable since Swift 6.3), data can be written into Mach-O sections. Combined with Swift Macros, this enables capabilities similar to various decoupling and registration methods from the Objective-C era. This framework also supports registering routes in this manner.
 
 Registering UIViewController
 ```
@@ -45,19 +45,17 @@ struct Foo {
     })
 }
 ```
-🟡 Currently, the @_used and @_section capabilities are still an experimental feature in Swift and need to be enabled through configuration settings. Please refer to the integration documentation for details.
-
 ## Example App
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements
-XCode 16.0 +
+Xcode 26.4 + (Swift 6.3+)
+
+> For older Xcode versions (16.0-26.3), please use version [2.2.8](https://github.com/reers/ReerRouter/releases/tag/2.2.8) which uses the experimental `@_section` and `@_used` attributes.
 
 iOS 13 +
 
-Swift 5.10
-
-swift-syntax 600.0.0
+swift-syntax 601.0.1+
 
 ## Installation
 
@@ -71,11 +69,11 @@ pod 'ReerRouter'
 As CocoaPods does not directly support the use of Swift Macros, the macro implementation can be compiled into a binary for use. The integration method is as follows. It's necessary to set s.pod_target_xcconfig in the components dependent on the router to load the binary plugin of the macro implementation:
 ```
 s.pod_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
   
   s.user_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-enable-experimental-feature SymbolLinkageMarkers -Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
 ```
 Alternatively, if s.pod_target_xcconfig is not used, you can add the following script to the Podfile for unified processing:
@@ -94,11 +92,7 @@ post_install do |installer|
           swift_flags.concat(plugin_flag.split)
         end
 
-        # Add experimental feature flag for SymbolLinkageMarkers
-        symbol_linkage_flag = '-enable-experimental-feature SymbolLinkageMarkers'
 
-        unless swift_flags.join(' ').include?(symbol_linkage_flag)
-          swift_flags.concat(symbol_linkage_flag.split)
         end
 
         config.build_settings['OTHER_SWIFT_FLAGS'] = swift_flags
@@ -112,7 +106,6 @@ end
 <p>In your project's <strong>Build Settings</strong>, search for <code>User Script Sandboxing</code> and set <code>ENABLE_USER_SCRIPT_SANDBOXING</code> to <code>No</code>. This resolves CocoaPods script execution issues caused by Xcode's stricter sandbox restrictions.</p>
 
 ### Swift Package Manager
-For packages that need to depend on ReerRouter, it's necessary to enable the Swift experimental feature:
 ```
 // Package.swift
 let package = Package(
@@ -122,23 +115,18 @@ let package = Package(
         .library(name: "APackageDependOnReerRouter", targets: ["APackageDependOnReerRouter"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.2.8")
+        .package(url: "https://github.com/reers/ReerRouter.git", from: "3.0.0")
     ],
     targets: [
         .target(
             name: "APackageDependOnReerRouter",
             dependencies: [
                 .product(name: "ReerRouter", package: "ReerRouter")
-            ],
-            // Add here to enable the experimental feature
-            swiftSettings:[.enableExperimentalFeature("SymbolLinkageMarkers")]
+            ]
         ),
     ]
 )
 ```
-In the main App Target's Build Settings, set to enable the experimental feature:
--enable-experimental-feature SymbolLinkageMarkers
-![CleanShot 2024-10-12 at 20 39 59@2x](https://github.com/user-attachments/assets/6a15fd27-61cf-4d55-974e-8f6006577527)
 
 ## Getting Started
 ### 1. Understanding `Route.Key`
