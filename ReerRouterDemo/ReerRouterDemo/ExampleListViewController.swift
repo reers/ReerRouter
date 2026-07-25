@@ -45,6 +45,19 @@ class ExampleListViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    #route(key: "haha") { params in
+        print(6666666)
+        if Bool.random() {
+            print(1231231)
+        }
+        ExampleListViewController.test {
+            print("callback")
+        }
+    }
+    
+    static func test(completion: () -> Void) {
+        completion()
+    }
     
     // MARK: View Life Cycle
     
@@ -54,6 +67,8 @@ class ExampleListViewController: UIViewController {
         self.tableView.dataSource = self
         self.tableView.delegate = self
         self.tableView.register(ExampleCell.self, forCellReuseIdentifier: "user")
+        
+        Router.shared.open("myapp://haha")
         
         
         Router.shared.addInterceptor(forKey: .userPage) { _ in
