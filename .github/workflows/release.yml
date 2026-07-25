@@ -1,0 +1,97 @@
+name: Build and Release Macro Plugin
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-arm64:
+    name: Build arm64
+    runs-on: macos-26
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26.6 (Swift 6.3)
+        run: sudo xcode-select -s /Applications/Xcode_26.6.app
+
+      - name: Build arm64 macro plugin
+        run: |
+          swift --version
+          swift build -c release --product ReerRouterMacros
+          cp .build/release/ReerRouterMacros-tool ./ReerRouterMacros-arm64
+          file ./ReerRouterMacros-arm64
+
+      - name: Upload arm64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-plugin-arm64
+          path: ReerRouterMacros-arm64
+
+  build-x86_64:
+    name: Build x86_64
+    runs-on: macos-26-intel
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26.6 (Swift 6.3)
+        run: sudo xcode-select -s /Applications/Xcode_26.6.app
+
+      - name: Build x86_64 macro plugin
+        run: |
+          swift --version
+          swift build -c release --product ReerRouterMacros
+          cp .build/release/ReerRouterMacros-tool ./ReerRouterMacros-x86_64
+          file ./ReerRouterMacros-x86_64
+
+      - name: Upload x86_64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-plugin-x86_64
+          path: ReerRouterMacros-x86_64
+
+  create-universal-and-upload:
+    name: Create Universal Macro Plugin and Upload
+    needs: [build-arm64, build-x86_64]
+    runs-on: macos-26
+    permissions:
+      contents: write
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Download arm64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macro-plugin-arm64
+          path: ./artifacts
+
+      - name: Download x86_64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macro-plugin-x86_64
+          path: ./artifacts
+
+      - name: Create Universal Macro Plugin
+        run: |
+          cd artifacts
+
+          # Create Universal Macro Plugin
+          lipo -create ReerRouterMacros-arm64 ReerRouterMacros-x86_64 \
+               -output ReerRouterMacros
+
+          echo "=== Universal Macro Plugin Info ==="
+          lipo -info ReerRouterMacros
+          file ReerRouterMacros
+
+          # Create zip archive
+          zip ReerRouterMacros.zip ReerRouterMacros
+
+          echo "=== Zip Contents ==="
+          unzip -l ReerRouterMacros.zip
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/ReerRouterMacros.zip

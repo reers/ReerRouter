@@ -66,14 +66,14 @@ it, simply add the following line to your Podfile:
 ```ruby
 pod 'ReerRouter'
 ```
-As CocoaPods does not directly support the use of Swift Macros, the macro implementation can be compiled into a binary for use. The integration method is as follows. It's necessary to set s.pod_target_xcconfig in the components dependent on the router to load the binary plugin of the macro implementation:
+As CocoaPods does not directly support the use of Swift Macros, ReerRouter downloads a prebuilt universal macro plugin from the GitHub Release matching the pod version (with a source-build fallback). Dependent pods still need `s.pod_target_xcconfig` to load the plugin:
 ```
 s.pod_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_BUILD_DIR}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
   
   s.user_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_BUILD_DIR}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
 ```
 Alternatively, if s.pod_target_xcconfig is not used, you can add the following script to the Podfile for unified processing:
@@ -86,7 +86,7 @@ post_install do |installer|
       target.build_configurations.each do |config|
         swift_flags = config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
         
-        plugin_flag = '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+        plugin_flag = '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_BUILD_DIR}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
         
         unless swift_flags.join(' ').include?(plugin_flag)
           swift_flags.concat(plugin_flag.split)

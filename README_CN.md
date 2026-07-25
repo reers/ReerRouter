@@ -66,14 +66,14 @@ ReerRouter 可以通过 [CocoaPods](https://cocoapods.org) 获得。要安装
 ```ruby
 pod 'ReerRouter'
 ```
-由于 CocoaPods 不支持直接使用 Swift Macro, 可以将宏实现编译为二进制提供使用, 接入方式如下, 需要在依赖路由的组件设置`s.pod_target_xcconfig`来加载宏实现的二进制插件:
+由于 CocoaPods 不支持直接使用 Swift Macro，ReerRouter 会从与 pod 版本对应的 GitHub Release 下载预编译的 universal 宏插件（下载失败时回退到源码构建）。依赖方仍需设置 `s.pod_target_xcconfig` 来加载该插件:
 ```
 s.pod_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_BUILD_DIR}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
   
   s.user_target_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+    'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_BUILD_DIR}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
   }
 ```
 或者, 如果不使用`s.pod_target_xcconfig`, 也可以在 podfile 中添加如下脚本统一处理:
@@ -86,7 +86,7 @@ post_install do |installer|
       target.build_configurations.each do |config|
         swift_flags = config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
         
-        plugin_flag = '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_ROOT}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
+        plugin_flag = '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_BUILD_DIR}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
         
         unless swift_flags.join(' ').include?(plugin_flag)
           swift_flags.concat(plugin_flag.split)

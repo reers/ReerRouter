@@ -49,6 +49,14 @@ playground.xcworkspace
 
 .build/
 
+# Prebuilt CocoaPods macro plugin (distributed via GitHub Release)
+MacroPlugin/ReerRouterMacros
+MacroPlugin/ReerRouterMacros.zip
+Sources/Resources/ReerRouterMacros
+Example/Pods/ReerRouter/Sources/Resources/ReerRouterMacros
+Example/Pods/RheaTime/Sources/Resources/RheaTimeMacros
+
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However
