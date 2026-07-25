@@ -808,6 +808,8 @@ extension Router {
         for info in actions {
             let keyHash = info.0
             let function = info.1
+            assert(Router.shared.actionMap[keyHash] == nil, "Action for key hash \(keyHash) has been registered.")
+            assert(Router.shared.routableMap[keyHash] == nil, "Action for key hash \(keyHash) conflict with a page.")
             Router.shared.actionMap[keyHash] = function
         }
     }
@@ -819,6 +821,8 @@ extension Router {
             let classProvider = info.1
             let cls: AnyClass = classProvider()
             if let routableClass = cls as? any Routable.Type {
+                assert(Router.shared.routableMap[keyHash] == nil, "Page for key hash \(keyHash) has been registered.")
+                assert(Router.shared.actionMap[keyHash] == nil, "Page for key hash \(keyHash) conflict with an action.")
                 Router.shared.routableMap[keyHash] = routableClass
             }
         }
