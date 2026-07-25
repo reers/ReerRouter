@@ -26,7 +26,7 @@ final class RouteMacroExpansionTests: XCTestCase {
             let __macro_local_4rheafMu_: RouteActionInfo = (
                 0x2e25cdcc7406360d,
                 { params in
-                print(123333333)
+                    print(123333333)
                 }
             )
             """,
@@ -51,7 +51,7 @@ final class RouteMacroExpansionTests: XCTestCase {
             let __macro_local_4rheafMu_: RouteActionInfo = (
                 0x2e25cdcc7406360d,
                 { params in
-                print(6666666)
+                    print(6666666)
                 }
             )
             """,

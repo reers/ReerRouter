@@ -33,8 +33,7 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
     ) throws -> [DeclSyntax] {
         let argumentList = node.arguments
         var key: String = ""
-        var functionBody: String = ""
-        var signature: String?
+        var actionClosure: ClosureExprSyntax?
         
         for argument in argumentList {
             switch argument.label?.text {
@@ -49,23 +48,22 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
                     key = hostValue
                 }
             case "action":
-                if let closureExpr = argument.expression.as(ClosureExprSyntax.self) {
-                    functionBody = closureExpr.statements.trimmedDescription
-                    if let sig = closureExpr.signature {
-                        signature = sig.trimmedDescription
-                    }
-                }
+                actionClosure = argument.expression.as(ClosureExprSyntax.self)
             default:
                 break
             }
         }
         
         // `#route(key: "haha") { params in ... }` puts the closure in trailingClosure.
-        if functionBody.isEmpty, let trailing = node.trailingClosure {
-            functionBody = trailing.statements.trimmedDescription
-            if let sig = trailing.signature {
-                signature = sig.trimmedDescription
-            }
+        actionClosure = actionClosure ?? node.trailingClosure
+        
+        // Interpolate as a syntax node (not `raw:`) so SwiftSyntax's Indenter
+        // applies the insertion-site indent to every line of the closure.
+        let closure: ExprSyntax
+        if let actionClosure {
+            closure = ExprSyntax(actionClosure.trimmed)
+        } else {
+            closure = "{ param in }"
         }
         
         let isGlobal = context.lexicalContext.isEmpty
@@ -73,17 +71,15 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
         let infoName = "\(context.makeUniqueName("rhea"))"
         let hashLiteral = fnv1aHashLiteral(key)
         
-        let declarationString = """
-            @used 
+        let declaration: DeclSyntax = """
+            @used
             @section("__DATA,__rerouter_ac")
-            \(staticString)let \(infoName): RouteActionInfo = (
-                \(hashLiteral),
-                { \(signature ?? "param in")
-                \(functionBody)
-                }
+            \(raw: staticString)let \(raw: infoName): RouteActionInfo = (
+                \(raw: hashLiteral),
+                \(closure)
             )
             """
-        return [DeclSyntax(stringLiteral: declarationString)]
+        return [declaration]
     }
 }
 
