@@ -52,13 +52,22 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
                 if let closureExpr = argument.expression.as(ClosureExprSyntax.self) {
                     functionBody = closureExpr.statements.trimmedDescription
                     if let sig = closureExpr.signature {
-                        signature = sig.description
+                        signature = sig.trimmedDescription
                     }
                 }
             default:
                 break
             }
         }
+        
+        // `#route(key: "haha") { params in ... }` puts the closure in trailingClosure.
+        if functionBody.isEmpty, let trailing = node.trailingClosure {
+            functionBody = trailing.statements.trimmedDescription
+            if let sig = trailing.signature {
+                signature = sig.trimmedDescription
+            }
+        }
+        
         let isGlobal = context.lexicalContext.isEmpty
         let staticString = isGlobal ? "" : "static "
         let infoName = "\(context.makeUniqueName("rhea"))"
@@ -70,7 +79,7 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
             \(staticString)let \(infoName): RouteActionInfo = (
                 \(hashLiteral),
                 { \(signature ?? "param in")
-                    \(functionBody)
+                \(functionBody)
                 }
             )
             """

@@ -37,7 +37,14 @@ let package = Package(
             path: "Sources/ReerRouter",
             swiftSettings: []
         ),
-        .target(name: "RouterLauncher")
+        .target(name: "RouterLauncher"),
+        .testTarget(
+            name: "ReerRouterTests",
+            dependencies: [
+                "ReerRouterMacros",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+            ]
+        ),
     ],
     swiftLanguageModes: [.v5]
 )

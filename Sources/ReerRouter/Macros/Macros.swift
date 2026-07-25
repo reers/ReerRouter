@@ -32,6 +32,11 @@
 ///     print("Global route triggered")
 /// })
 ///
+/// // Trailing closure is also supported
+/// #route(key: .testKey) { params in
+///     print("Trailing closure route triggered")
+/// }
+///
 /// class MyClass {
 ///     // Nested within a class
 ///     #route(key: .nestedKey, action: { params in
