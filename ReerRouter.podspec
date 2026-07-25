@@ -61,7 +61,18 @@ Pod::Spec.new do |s|
 
     echo "Downloading prebuilt macro plugin from ${DOWNLOAD_URL}..."
 
-    if curl -L -f --connect-timeout 3 --max-time 60 -o "${PLUGIN_DIR}/${PLUGIN_NAME}.zip" "${DOWNLOAD_URL}"; then
+    DOWNLOAD_OK=0
+    for i in 1 2 3; do
+      if curl -L -f --connect-timeout 30 --max-time 180 --retry 2 --retry-delay 2 \
+        -o "${PLUGIN_DIR}/${PLUGIN_NAME}.zip" "${DOWNLOAD_URL}"; then
+        DOWNLOAD_OK=1
+        break
+      fi
+      echo "Download attempt ${i} failed, retrying..."
+      sleep 2
+    done
+
+    if [ "${DOWNLOAD_OK}" -eq 1 ]; then
       unzip -o "${PLUGIN_DIR}/${PLUGIN_NAME}.zip" -d "${PLUGIN_DIR}"
       rm -f "${PLUGIN_DIR}/${PLUGIN_NAME}.zip"
       chmod +x "${PLUGIN_DIR}/${PLUGIN_NAME}"
@@ -71,7 +82,7 @@ Pod::Spec.new do |s|
       echo "Warning: Failed to download prebuilt macro plugin, will build from source..."
 
       # Fallback: build from source
-      env -i PATH="$PATH" "$SHELL" -l -c "swift build -c release --package-path \\"${PODS_TARGET_SRCROOT}\\" --build-path \\"${PODS_BUILD_DIR}/ReerRouter\\" --product ReerRouterMacros"
+      env -i PATH="$PATH" HOME="$HOME" "$SHELL" -l -c "swift build -c release --package-path \\"${PODS_TARGET_SRCROOT}\\" --build-path \\"${PODS_BUILD_DIR}/ReerRouter\\" --product ReerRouterMacros"
       cp "${PODS_BUILD_DIR}/ReerRouter/release/ReerRouterMacros-tool" "${PLUGIN_DIR}/${PLUGIN_NAME}"
       chmod +x "${PLUGIN_DIR}/${PLUGIN_NAME}"
       echo "Built macro plugin from source"
