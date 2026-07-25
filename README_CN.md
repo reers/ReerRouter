@@ -46,7 +46,7 @@ struct Foo {
 
 
 ## 示例应用程序
-要运行该示例项目，请克隆 repo，并首先在 Example 目录中运行 `pod install`。
+用 Xcode 打开 `ReerRouterDemo`（Swift Package Manager）。
 
 ## 要求
 Xcode 26.4 + (Swift 6.3+)
@@ -60,13 +60,15 @@ swift-syntax 601.0.1+
 ## 安装
 
 ### CocoaPods
-ReerRouter 可以通过 [CocoaPods](https://cocoapods.org) 获得。要安装
-它，只需在你的Podfile中添加以下一行。
+已停止维护 CocoaPods 集成。**[2.3.2](https://github.com/reers/ReerRouter/releases/tag/2.3.2) 是最后一个 CocoaPods 版本。** 新版本请迁移到 Swift Package Manager。
+
+若仍需使用 CocoaPods，请固定 `2.3.2`：
 
 ```ruby
-pod 'ReerRouter'
+pod 'ReerRouter', '2.3.2'
 ```
-由于 CocoaPods 不支持直接使用 Swift Macro，ReerRouter 会从与 pod 版本对应的 GitHub Release 下载预编译的 universal 宏插件（下载失败时回退到源码构建）。依赖方仍需设置 `s.pod_target_xcconfig` 来加载该插件:
+
+由于 CocoaPods 不支持直接使用 Swift Macro，ReerRouter `2.3.2` 会从与 pod 版本对应的 GitHub Release 下载预编译的 universal 宏插件（下载失败时回退到源码构建）。依赖方仍需设置 `s.pod_target_xcconfig` 来加载该插件:
 ```
 s.pod_target_xcconfig = {
     'OTHER_SWIFT_FLAGS' => '-Xfrontend -load-plugin-executable -Xfrontend ${PODS_BUILD_DIR}/ReerRouter/MacroPlugin/ReerRouterMacros#ReerRouterMacros'
@@ -116,7 +118,7 @@ let package = Package(
         .library(name: "APackageDependOnReerRouter", targets: ["APackageDependOnReerRouter"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.3.2")
+        .package(url: "https://github.com/reers/ReerRouter.git", from: "2.4.0")
     ],
     targets: [
         .target(
