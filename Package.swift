@@ -27,6 +27,7 @@ let package = Package(
         .macro(
             name: "ReerRouterMacros",
             dependencies: [
+                .product(name: "SwiftBasicFormat", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ]

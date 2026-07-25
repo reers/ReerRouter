@@ -5,6 +5,7 @@
 //  Created by phoenix on 2024/9/6.
 //
 
+import SwiftBasicFormat
 import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
@@ -23,6 +24,27 @@ private func fnv1aHashLiteral(_ string: String) -> String {
     let hash = fnv1aHash(string)
     let hex = String(hash, radix: 16)
     return "0x" + String(repeating: "0", count: max(0, 16 - hex.count)) + hex
+}
+
+/// Drop spaces/tabs from leading trivia so call-site absolute indentation is not
+/// stacked again when SwiftSyntax's Indenter embeds the node.
+private final class LeadingIndentStripper: SyntaxRewriter {
+    override func visit(_ token: TokenSyntax) -> TokenSyntax {
+        let pieces = token.leadingTrivia.filter {
+            switch $0 {
+            case .spaces, .tabs: return false
+            default: return true
+            }
+        }
+        return token.with(\.leadingTrivia, Trivia(pieces: Array(pieces)))
+    }
+}
+
+private extension ClosureExprSyntax {
+    /// Closure with call-site indentation removed; newlines kept.
+    var withoutLeadingIndentation: ClosureExprSyntax {
+        LeadingIndentStripper().rewrite(self).cast(ClosureExprSyntax.self)
+    }
 }
 
 public struct WriteRouteActionToSectionMacro: DeclarationMacro {
@@ -57,11 +79,13 @@ public struct WriteRouteActionToSectionMacro: DeclarationMacro {
         // `#route(key: "haha") { params in ... }` puts the closure in trailingClosure.
         actionClosure = actionClosure ?? node.trailingClosure
         
-        // Interpolate as a syntax node (not `raw:`) so SwiftSyntax's Indenter
-        // applies the insertion-site indent to every line of the closure.
+        // Drop call-site leading spaces/tabs, then `.formatted()` so Indenter can
+        // re-embed the closure at any nesting depth without stacking indentation.
+        // (`.formatted()` alone preserves existing indent and would still stack.)
         let closure: ExprSyntax
         if let actionClosure {
-            closure = ExprSyntax(actionClosure.trimmed)
+            let normalized = actionClosure.trimmed.withoutLeadingIndentation
+            closure = ExprSyntax(normalized).formatted().cast(ExprSyntax.self)
         } else {
             closure = "{ param in }"
         }

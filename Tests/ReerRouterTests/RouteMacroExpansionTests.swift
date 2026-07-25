@@ -61,4 +61,33 @@ final class RouteMacroExpansionTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
+
+    func testNestedInType() throws {
+        #if canImport(ReerRouterMacros)
+        assertMacroExpansion(
+            """
+            class ViewController {
+                #route(key: "haha") { params in
+                    print(6666666)
+                }
+            }
+            """,
+            expandedSource: """
+            class ViewController {
+                @used
+                @section("__DATA,__rerouter_ac")
+                static let __macro_local_4rheafMu_: RouteActionInfo = (
+                    0x2e25cdcc7406360d,
+                    { params in
+                        print(6666666)
+                    }
+                )
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
 }
